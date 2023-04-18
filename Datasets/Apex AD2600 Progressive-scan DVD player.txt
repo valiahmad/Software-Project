@@ -575,7 +575,7 @@ play[-2], dvd[-2]##forget about the sleek looks if it can 't play some of your r
 [t] only lasted a month ! 
 ##i bought the 2600 because it plays everything ! 
 video output[-3]##well , within 45 days the video output quit working ( both rca & optic ) . 
-video output[-3[p][u]##so now it still plays everything , you just can 't see it ! 
+video output[-3][p][u]##so now it still plays everything , you just can 't see it ! 
 [t] a frustrating christmas . 
 ##we ordered two apex ad-2600 's for our family for christmas - finally decided to join the rest of the world and watch dvd 's - well . 
 player[-3][p]##the first one we installed did n't work , and our kids were devastated to say the least . 

@@ -480,7 +480,7 @@ firmware[-2] ##The firmware has bugs too, so download and install the latest fir
 ##After installing the firmware hold the reset button at the back for 30 secs.  
 ##Also use Netstat on the Linksys website which helps in setting it up. 
 instant setup[-2] ##The instant setup button in the front of the router messes up the network it is better to configure the router manually. 
-router[-][cc] ##This is NOT a router I would suggest for a novice user, my old Dlink DI52!
+router[-1][cc] ##This is NOT a router I would suggest for a novice user, my old Dlink DI52!
 ##4 was much more easier to setup but had slower speeds and not as configurable as this. 
 VOIP[+2] ##It works well with my VOIP adapter, which is also a Linksys. 
 ##At first I was going to give it a really bad review. 

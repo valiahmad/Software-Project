@@ -154,7 +154,7 @@ screen[+2],switch[-2]##the blue-screen display in the zennx xtra model is an imp
 [t] terrific mp3 player , great price . 
 nomad[+3]##i love my new nomad , its great ! 
 ##now i dont have to lug around 80 cds if i dont know what i 'm going to want to listen to biking home . 
-look##this thing , while looking pretty cool , is not as sexy as the ipod . 
+look[-3][u]##this thing , while looking pretty cool , is not as sexy as the ipod . 
 price[+3]##for some this might be a problem , but for the price of a 30 gig ipod , you can get a 60gb nomad , the ipod simply pales in comparison . 
 software[+3]##the software is very easy to use , and within 30 minutes of opening my box , i was out and about listening to any one of my 80 cds . 
 case[+2]##the free ( i didnt know they still did that ) carrying case is really protective , and to me its the only accessory you need ( except good headphones ) . 
@@ -331,7 +331,7 @@ player[+3][u]##i just received my 40gb zen xtra yesterday and i 'm extremely ple
 ##just before we all spent a couple weeks in an rv together . 
 ##the ipod is a neat piece of machinery but after screwing around with both of them i think the zen products are the way to go . 
 ##so i requested and received a zen xtra as a christmas gift . 
-setup[2], transfer[+2]##the setup and transfer process was cake for me . 
+setup[+2], transfer[+2]##the setup and transfer process was cake for me . 
 ##i just used the explorer program to move my songs to my player . 
 transfer[-1][u]##i did have to put a little work into renaming some duplicate file names to get all my music on my zen xtra but it was n't a big problem . 
 explorer[-1]##the explorer program did shut down a couple times while i was renaming titles and changing genres but i did n't have to reboot the computer or anything , just open up explorer again . 

@@ -284,7 +284,7 @@ buttons[-1]##8- Buttons are little, but If you have steady fingers and dealed wi
 buttons[-1]##Buttons size is OK for me, my wife, but not my grany.
 ##9- Cons? Not a single one after 5 months.
 [t]
-canon s100[1][cc]##i researched and researched between getting the canon s20 or the canon s100, and of course i got the latter!
+canon s100[+1][cc]##i researched and researched between getting the canon s20 or the canon s100, and of course i got the latter!
 ##and i'm glad i did!
 [t]
 ease of use[+2][u],picture detail[+2][u]##I was looking for something that wasn't too complicated to use and to help the pics I post on Ebay show more detial.

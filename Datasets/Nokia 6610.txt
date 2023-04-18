@@ -152,7 +152,7 @@ speakerphone[-1]##only one complaint about the speakerphone , you can only activ
 radio[+2]##this phone is one of the few phones that have an fm radio tuner built in . 
 radio[+2]##this radio receives fairly decent reception but not nearly as good as a normal radio , but as long as the stations are coming in clearly the phone 's radio should work perfectly . 
 ##tri-band : 
-feature##one highly beneficial feature of this phone ( at least to me ) is that it can be used anywhere in the world except a few countries that do not use gsm , a few in asia . 
+feature[+1]##one highly beneficial feature of this phone ( at least to me ) is that it can be used anywhere in the world except a few countries that do not use gsm , a few in asia . 
 phone[+2]##i bought this phone for my trip to south africa and it worked almost perfectly . 
 t-mobile[-1]##the only problem i had was a small glitch with t-mobile . 
 reception[+3]##anywhere i went in south africa this phone received full bar reception . 

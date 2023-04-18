@@ -10,8 +10,8 @@
 '''
 
 import pandas as pd 
-import DatasetsAdd
-dataTextAd = DatasetsAdd.LName
+import DatasetsAddresses
+dataTextAd = DatasetsAddresses.LName
 
 data = {}       # containing the whole data in format : {index:{'Review':review context, 'Features':{'Name:feature name, 'Polarity':feature poloarity}}}
 
@@ -22,11 +22,13 @@ class Parse:
 
         f = {}          # containing each review features
         w = ''          # containing review/feature name
+        ft = ''         # containing feature type
         P = 0           # containing polarity of each feature
-        CF = 0          # containing number of each review feature
         F = 0           # flag to show feature name is loading
-        R = 0           # flag to show review context is loading
+        FT = 0          # flag to show feature type is available
+        CF = 0          # containing number of each review feature
         CR = 0          # containing number of reviews
+        R = 0           # flag to show review context is loading
         G = 1           # flag to show nothing is loading
 
 
@@ -39,7 +41,6 @@ class Parse:
             S = dataString.read()
 
             for i in range(1, len(S)):
-                
                 if (S[i] >= 'A' and S[i] <= 'Z' or S[i] >= 'a' and S[i] <= 'z') and S[i-1] == '\n':
                     F = 1
                     G = 0
@@ -53,12 +54,17 @@ class Parse:
                         if S[i+2] != ']':
                             P = int(S[i+2]) * P
                     else:
-                        f['ft'+str(CF)] = S[i+1]
+                        FT = 1
+                        ft = S[i+1]
 
                 if S[i] == ']' and F:
                     if S[i-1] >= '0' and S[i-1] <= '9':
                         CF += 1
                         f['f'+str(CF)] = {'Name':w.strip(), 'Polarity':P}
+                    if FT:
+                        f['f'+str(CF)]['ft'+str(CF)] = ft
+                        FT = 0
+                        ft = ''
 
                     w = ''
 
@@ -99,14 +105,9 @@ class Parse:
         print(df.head)
         df.to_excel(add,index=index)
 
-    def returnMode(dictMode=False, dataFrameMode=True):
+    def returnMode(self, dictMode=False, dataFrameMode=True):
         if dataFrameMode:
             return pd.DataFrame(data)
         elif dictMode:
             return data
         
-
-
-
-ob = Parse()
-# ob.writeToExcel('new.xlsx')

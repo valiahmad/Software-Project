@@ -9,7 +9,7 @@ phone[+3]##This is the first phone I know of that has the large bright screen, i
 phone[+3]##If you are looking for an upgrade, this is definitely the phone for you.
 [t]
 ##I got this with the need for a nokia GSM camera-phone with speakerphone.
-size[cs][+2]##3660 had similar features, but that is big in size.
+size[+2][cs]##3660 had similar features, but that is big in size.
 6600[+3]##6600 looks and feels nice.
 bluetooth[+3]##This one is full of features(has bluetooth).
 LCD[+3]camera quality[+3]##Especially the LCD is big and the camera quality is among the very best around.
