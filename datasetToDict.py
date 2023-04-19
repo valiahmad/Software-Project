@@ -13,7 +13,10 @@ import pandas as pd
 import DatasetsAddresses
 dataTextAd = DatasetsAddresses.LName
 
-data = {}       # containing the whole data in format : {index:{'Review':review context, 'Features':{'Name:feature name, 'Polarity':feature poloarity}}}
+data = {}       # containing the whole data in format : 
+                # {index:{'Review':review context, 
+                # 'Features':{'Name:feature name, 'Polarity':feature poloarity}, 
+                # 'Feature':has or not}}
 
 
 class Parse:
@@ -30,7 +33,7 @@ class Parse:
         CR = 0          # containing number of reviews
         R = 0           # flag to show review context is loading
         G = 1           # flag to show nothing is loading
-
+        Re = 0          # flag to show review context is loading(without feature)
 
         # parsing the whole 14 datasets at once and merging in one
         for ad in dataTextAd:
@@ -82,9 +85,21 @@ class Parse:
                 if S[i] == '\n' and R:
                     R = 0
                     G = 1
-                    data[CR] = {'Review':w[1:].strip(), 'Features':f}
+                    data[CR] = {'Review':w[1:].strip(), 'Features':f, 'Feature':'Yes'}
                     CR += 1
                     f = {}
+                    w = ''
+
+                if S[i] == '#' and S[i-1] == '\n':
+                    G = 0
+                    Re = 1
+                    continue
+
+                if S[i] == '\n' and Re:
+                    G = 1
+                    Re = 0
+                    data[CR] = {'Review':w[1:].strip(), 'Feature':'No'}
+                    CR += 1
                     w = ''
 
                 if not P and not G:
@@ -92,6 +107,7 @@ class Parse:
 
 
                 print('\r[%-20s] %d%% ' % ('#' * (i//(len(S)//20)), i//(len(S)//20)*5), end = '')
+            
         
 
 
@@ -100,6 +116,7 @@ class Parse:
         df = pd.DataFrame(data)
         if transpose:
             df = df.T
+        df = df.sort_values('Feature')
         df = df.applymap(lambda x: x.encode('unicode_escape').
                         decode('utf-8') if isinstance(x, str) else x)
         print(df.head)
