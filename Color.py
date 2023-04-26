@@ -26,8 +26,9 @@ bgreen = '46m'
 bwhite = '47m'
 
 End = '\x1b[0m'
+ENDC = '\033[0m'
 
-# print(BOLD+forange+bgreen_yashmi+'Warning!'+End)
+# print(SIMP+fblue+bgray+'\n Excel File Has Been Loaded!'+End)
 
 # def print_format_table():
 

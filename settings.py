@@ -18,6 +18,8 @@ def setting(setting = None):
 
 
 listofSet = [\
+    ['\nRead Excel File : #1 YES   #2 NO : ',\
+    'Excel File', True, False],\
     ['\nPunctuation Removal : #1 YES   #2 NO : ',\
     'Punctuation', True, False],\
     ['\nDigit Removal : #1 YES   #2 NO : ',\

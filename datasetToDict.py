@@ -34,6 +34,8 @@ class Parse:
         R = 0           # flag to show review context is loading
         G = 1           # flag to show nothing is loading
         Re = 0          # flag to show review context is loading(without feature)
+        fl = []         # List of features of each review
+        pl = []         # List of polarity of each review
 
         # parsing the whole 14 datasets at once and merging in one
         for ad in dataTextAd:
@@ -64,6 +66,8 @@ class Parse:
                     if S[i-1] >= '0' and S[i-1] <= '9':
                         CF += 1
                         f['f'+str(CF)] = {'Name':w.strip(), 'Polarity':P}
+                        fl.append(w.strip())
+                        pl.append(P)
                     if FT:
                         f['f'+str(CF)]['ft'+str(CF)] = ft
                         FT = 0
@@ -85,9 +89,11 @@ class Parse:
                 if S[i] == '\n' and R:
                     R = 0
                     G = 1
-                    data[CR] = {'Review':w[1:].strip(), 'Features':f, 'Feature':'Yes'}
+                    data[CR] = {'Review':w[1:].strip(), 'Features':f, 'Feature':'Yes', 'Feature List':fl, 'Polarity List':pl}
                     CR += 1
                     f = {}
+                    fl = []
+                    pl = []
                     w = ''
 
                 if S[i] == '#' and S[i-1] == '\n':

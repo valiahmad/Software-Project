@@ -492,7 +492,7 @@ design[+2], size[+2][u], comfort[+2][u], look[+2] ##Strong Points: - Design: sma
 variety of colours[+2] - Colors: 10 variety of HOT colors made it difficult to choose from. 
 sound[+3] ##You don't need to cough up an extra couple bucks for a "special edition" to get black! - Sound: Awesome! - Batteries: removable/replaceable. 
 audio formats[+2] ##- Audio Formats: supports both MP3, WMA... And yeah, WAV too.  
-touch pad[-2], design[-1], volume control[-1] Weak Points: - Touch Pad: design could be better - Volume Control: controlled through the vertical strip, but purchasing a headphone with built-in volume control will do the trick. 
+touch pad[-2], design[-1], volume control[-1] ##Weak Points: - Touch Pad: design could be better - Volume Control: controlled through the vertical strip, but purchasing a headphone with built-in volume control will do the trick. 
 FM reception[-2][u] ##- Radio Quality: weak reception     
 [t]
 look[-3][u], storage[+1] ##It's nice that the Zen Micro has bells and whistles like FM (but where's AM???) and voice recording, and 20% more storage than "the other" mini MP3 player, but why is it so (...)ugly?  
@@ -929,7 +929,7 @@ working[-3][u] ##So I took out the battery and put it back in again, only to fin
 sound[-3] ##I had the second one for less than two weeks when I noticed a rattling/humming/buzzing sound while music was played.  
 ##I've tried different headphones, upgrading firmware, using different files and nothing helps.  
 customer service[-3] ##I sent Creative customer service 3 emails in which they did not help me one bit and don't seem to even want to help.  
-I've heard many good reviews of this product and I wonder if maybe I just had bad luck.  
+##I've heard many good reviews of this product and I wonder if maybe I just had bad luck.  
 design[+2] ##It was a good player when it worked and I loved the design.  
 player[-3][p] ##It's too bad, though, that !
 ##I don't want to keep testing my luck.  

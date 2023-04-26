@@ -1,1 +1,1 @@
-{"Punctuation": true, "Digit": true, "<10letters": true, "Tokenization": true, "StopWords": true, "POS Tagging": true, "Spell Checking": true, "Stemming": true, "Lemmatization": true, "Report": true}
+{"Excel File": true, "Punctuation": true, "Digit": false, "<10letters": true, "Tokenization": true, "StopWords": false, "POS Tagging": false, "Spell Checking": true, "Stemming": false, "Lemmatization": false, "Report": false}
