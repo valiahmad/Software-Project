@@ -3,7 +3,7 @@
 *    github.com/valiahmad (c)                                                                             *
 *    April.17.2023                                                                                        *
 *    Description:                                                                                         *
-*        this code is written to parse the datasets of Hu and Liu* in a dictionary format, and return     *
+*        This code is written to parse the datasets of Hu and Liu* in a dictionary format, and return     *
 *        as Dict or DataFrame or write in Excel.                                                          *
 *        *Minqing Hu and Bing Liu, 2004. Department of Computer Sicence University of Illinios at Chicago *
 ***********************************************************************************************************
@@ -124,7 +124,7 @@ class Parse:
 
     def returnMode(self, dictMode=False, dataFrameMode=True):
         if dataFrameMode:
-            return pd.DataFrame(data)
+            return pd.DataFrame(data).T
         elif dictMode:
             return data
         
