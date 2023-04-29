@@ -16,10 +16,10 @@ from nltk.stem import WordNetLemmatizer
 print(ITALIC+fwhite+bgreen_yashmi+'\n Loading Done!'+End)
 Settings = setting()
 
-def Preprocess():
+def Preprocess(address):
     # Loading Data
     if Settings['Excel File']:
-        df = pd.read_excel('file.xlsx')
+        df = pd.read_excel(address)
         print(SIMP+fblue+bgray+'\n Excel File Has Been Loaded!'+End)
     else:
         df = Parse()
@@ -27,7 +27,7 @@ def Preprocess():
     print(df.columns)
 
     # Amount of Data to Use
-    df = df.sample(n=100)
+    # df = df.sample(n=100)
     # if Settings['Percetage']:
     #     df = df.sample(frac=Settings['percetage'])
     #     print(SIMP+fblue+bgray+'\n %d%% Data Randomly Selected!'+End % Settings['percetage'])
@@ -64,7 +64,10 @@ def Preprocess():
     # Correcting word spells
     if Settings['Spell Checking']:
         spell = SpellChecker()
+        df['Tokenized-Original'] = df['Tokenized']
         df['Tokenized'] = df['Tokenized'].apply(lambda x: [spell.correction(word) for word in x])
+        df['Token-Check'] = df['Tokenized'].apply(lambda x: [x for word in x if word is None])
+        df['Tokenized'] = df['Tokenized'].apply(lambda x: [word for word in x if word is not None])
         print(SIMP+fblue+bgray+'\n Spell Checked!'+End)
     else:
         print(BOLD+fred+bgray+'\nData is NOT Spell-Checked!!!'+End)
@@ -88,7 +91,7 @@ def Preprocess():
         df['Stemmed'] = df['Tokenized'].apply(lambda x: [stemmer.stem(word) for word in x])
         print(SIMP+fblue+bgray+'\n Words Stemmed!'+End)
 
-    #Lemmatization
+    # Lemmatization
     if Settings['Lemmatization']:
         wnl = WordNetLemmatizer()
         df['Lemmatized'] = df['Tokenized'].apply(lambda x: [wnl.lemmatize(word, 'v') for word in x])
