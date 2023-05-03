@@ -66,7 +66,6 @@ def Preprocess(address):
         spell = SpellChecker()
         df['Tokenized-Original'] = df['Tokenized']
         df['Tokenized'] = df['Tokenized'].apply(lambda x: [spell.correction(word) for word in x])
-        df['Token-Check'] = df['Tokenized'].apply(lambda x: [x for word in x if word is None])
         df['Tokenized'] = df['Tokenized'].apply(lambda x: [word for word in x if word is not None])
         print(SIMP+fblue+bgray+'\n Spell Checked!'+End)
     else:
