@@ -3,10 +3,12 @@ print(BOLD+fgray+bwhite+' Preprocessing'+End)
 print(ITALIC+fgray+borange+' Loading Libraries...'+End)
 ################################ LIBRARIES
 import string
+import torch
 import pandas as pd
 from settings import setting
 from datasetToDict import Parse
 from nltk.tokenize import word_tokenize
+from transformers import BertTokenizer
 from spellchecker import SpellChecker
 from nltk import pos_tag
 from nltk.corpus import stopwords
@@ -16,7 +18,7 @@ from nltk.stem import WordNetLemmatizer
 print(ITALIC+fwhite+bgreen_yashmi+'\n Loading Done!'+End)
 Settings = setting()
 
-def Preprocess(address):
+def Preprocess(address='file.xlsx'):
     # Loading Data
     if Settings['Excel File']:
         df = pd.read_excel(address)
@@ -61,6 +63,16 @@ def Preprocess(address):
         print(BOLD+fred+bgray+'\nData is NOT Tokenized!!!'+End)
         input('\nTo Continue Press Enter...')
 
+    # BERT Tokenization
+    if Settings['BERT-Tokenization']:
+        tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
+        # padding='max_length',max_length=64,return_tensors="pt",return_attention_mask=True
+        df['BERT-Tokenized'] = df['Review'].apply(tokenizer.tokenize)
+        print(BOLD+fblue+bgray+'\n BERT-Tokenization Done!'+End)
+    else:
+        print(BOLD+fred+bgray+'\nData is NOT Tokenized(BERT)!!!'+End)
+        input('\nTo Continue Press Enter...')
+
     # Correcting word spells
     if Settings['Spell Checking']:
         spell = SpellChecker()
@@ -96,10 +108,32 @@ def Preprocess(address):
         df['Lemmatized'] = df['Tokenized'].apply(lambda x: [wnl.lemmatize(word, 'v') for word in x])
         print(SIMP+fblue+bgray+'\n Lemmatization Done!'+End)
 
-    # Word Embedding
-    # if Settings['']:
+    # Fixing the problems with dataset
+    if Settings['Fix Problem']:
 
-    #     print(SIMP+fblue+bgray+'\n Word Converted!'+End)
+        print(SIMP+fblue+bgray+'\n Problems With The Dataset Fixed!'+End)
+    
+    # Formatting for BERT
+    if Settings['BERT Format']:
+        if Settings['Tokenization']:
+            df['Tokenized'] = df['Tokenized'].apply(lambda x: ['[CLS]'] + x + ['[SEP]'])
+            df['TokenID'] = df['Tokenized'].apply(tokenizer.convert_tokens_to_ids)
+            df['SegmentID'] = df['Tokenized'].apply(lambda x: [1]*len(x))
+            
+        elif Settings['BERT-Tokenization']:
+            df['BERT-Tokenized'] = df['BERT-Tokenized'].apply(lambda x: ['[CLS]'] + x + ['[SEP]'])
+            df['TokenID'] = df['BERT-Tokenized'].apply(tokenizer.convert_tokens_to_ids)
+            df['SegmentID'] = df['BERT-Tokenized'].apply(lambda x: [1]*len(x))
+            
+        df['Token-Tensor'] = df['TokenID'].apply(lambda x: torch.tensor([x]))
+        df['Segment-Tensor'] = df['SegmentID'].apply(lambda x: torch.tensor([x]))
+        print(SIMP+fblue+bgray+'\n Data Prepared For BERT!'+End)
+    
+    # Formatting for Word2Vec
+    if Settings['Word2Vec']:
 
+        print(SIMP+fblue+bgray+'\n Data Prepared for Word2Vec!'+End)
+    
+    
 
     return df
