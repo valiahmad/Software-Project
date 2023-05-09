@@ -39,7 +39,10 @@ def Preprocess(address='file.xlsx'):
     # else:
     #     print(SIMP+fblue+bgray+'\n All Data Is Been Processed!'+End)
 
-
+    # To Lowercase
+    if Settings['Lowercase']:
+        df['Review'] = df['Review'].str.lower()
+        
     # Punctuations Removal !"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~
     if Settings['Punctuation']:
         df['Review'] = df['Review'].str.translate(str.maketrans('', '', string.punctuation))
