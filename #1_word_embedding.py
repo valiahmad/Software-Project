@@ -75,7 +75,7 @@ BERT Model
 
 '''
 # Load pre-trained model (weights)
-model = BertModel.from_pretrained('bert-base-uncased',output_hidden_states = True,)
+model = BertModel.from_pretrained('bert-base-uncased',output_hidden_states = True)
 
 # Put the model in "evaluation" mode, meaning feed-forward operation.
 model.eval()
