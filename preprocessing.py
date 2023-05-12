@@ -1,12 +1,11 @@
-from Color import *
+from _.Color import *
 print(BOLD+fgray+bwhite+' Preprocessing'+End)
-print(ITALIC+fgray+borange+' Loading Libraries...'+End)
-################################ LIBRARIES
+
 import string
 import torch
 import pandas as pd
-from settings import setting
-from datasetToDict import Parse
+from _.settings import setting
+from _.datasetToDict import Parse
 from nltk.tokenize import word_tokenize
 from transformers import BertTokenizer
 from spellchecker import SpellChecker
@@ -14,30 +13,25 @@ from nltk import pos_tag
 from nltk.corpus import stopwords
 from nltk.stem.snowball import SnowballStemmer
 from nltk.stem import WordNetLemmatizer
-################################ LIBRARIES
-print(ITALIC+fwhite+bgreen_yashmi+'\n Loading Done!'+End)
+
+# Reading the settings
 Settings = setting()
 
-def Preprocess(address='file.xlsx'):
+
+
+def Preprocess():
+
     # Loading Data
-    if Settings['Excel File']:
-        df = pd.read_excel(address)
-        print(SIMP+fblue+bgray+'\n Excel File Has Been Loaded!'+End)
-    else:
+    if Settings['']:
         df = Parse()
         df = df.returnMode(dataFrameMode=True)
-    print(df.columns)
+        print(df.head())
+    else:
+        path = './Datasets\\Laptops\\train.json'
+        df = pd.read_json(path)
+        df.head()
 
-    # Amount of Data to Use
-    # df = df.sample(n=100)
-    # if Settings['Percetage']:
-    #     df = df.sample(frac=Settings['percetage'])
-    #     print(SIMP+fblue+bgray+'\n %d%% Data Randomly Selected!'+End % Settings['percetage'])
-    # elif Settings['Number']:
-    #     df = df.sample(n=Settings['number'])
-    #     print(SIMP+fblue+bgray+'\n %d Numbers Samples Randomly Selected!'+End % Settings['number'])
-    # else:
-    #     print(SIMP+fblue+bgray+'\n All Data Is Been Processed!'+End)
+    
 
     # To Lowercase
     if Settings['Lowercase']:
@@ -131,11 +125,6 @@ def Preprocess(address='file.xlsx'):
         df['Token-Tensor'] = df['TokenID'].apply(lambda x: torch.tensor([x]))
         df['Segment-Tensor'] = df['SegmentID'].apply(lambda x: torch.tensor([x]))
         print(SIMP+fblue+bgray+'\n Data Prepared For BERT!'+End)
-    
-    # Formatting for Word2Vec
-    if Settings['Word2Vec']:
-
-        print(SIMP+fblue+bgray+'\n Data Prepared for Word2Vec!'+End)
     
     
 
