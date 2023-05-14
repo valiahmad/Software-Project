@@ -4,6 +4,7 @@ print(BOLD+fgray+bwhite+' Preprocessing'+End)
 import string
 import torch
 import pandas as pd
+import numpy as np
 from _.settings import setting
 from _.datasetToDict import Parse
 from nltk.tokenize import word_tokenize
@@ -21,15 +22,28 @@ Settings = setting()
 
 def Preprocess():
 
+    # TODO: Match Datasets
     # Loading Data
-    if Settings['']:
+    if Settings['Hu and Liu Datasets']:
         df = Parse()
         df = df.returnMode(dataFrameMode=True)
         print(df.head())
     else:
-        path = './Datasets\\Laptops\\train.json'
-        df = pd.read_json(path)
-        df.head()
+        path = [
+            './Datasets\\Laptops\\train.json',
+            './Datasets\\Laptops\\test.json',
+            './Datasets\\Restaurants\\train.json',
+            './Datasets\\Restaurants\\test.json'
+        ]
+        dfLtr = pd.read_json(path[0])
+        dfLte = pd.read_json(path[1])
+        dfRtr = pd.read_json(path[2])
+        dfRte = pd.read_json(path[3])
+        dfL = pd.concat([dfLtr, dfLte], ignore_index=True)
+        dfR = pd.concat([dfRtr, dfRte], ignore_index=True)
+        del dfLtr, dfLte, dfRtr, dfRte
+        print(dfL.head())
+        print(dfR.head())
 
     
 
@@ -112,16 +126,9 @@ def Preprocess():
     
     # Formatting for BERT
     if Settings['BERT Format']:
-        if Settings['Tokenization']:
-            df['Tokenized'] = df['Tokenized'].apply(lambda x: ['[CLS]'] + x + ['[SEP]'])
-            df['TokenID'] = df['Tokenized'].apply(tokenizer.convert_tokens_to_ids)
-            df['SegmentID'] = df['Tokenized'].apply(lambda x: [1]*len(x))
-            
-        elif Settings['BERT-Tokenization']:
-            df['BERT-Tokenized'] = df['BERT-Tokenized'].apply(lambda x: ['[CLS]'] + x + ['[SEP]'])
-            df['TokenID'] = df['BERT-Tokenized'].apply(tokenizer.convert_tokens_to_ids)
-            df['SegmentID'] = df['BERT-Tokenized'].apply(lambda x: [1]*len(x))
-            
+        df['BERT-Tokenized'] = df['BERT-Tokenized'].apply(lambda x: ['[CLS]'] + x + ['[SEP]'])
+        df['TokenID'] = df['BERT-Tokenized'].apply(tokenizer.convert_tokens_to_ids)
+        df['SegmentID'] = df['BERT-Tokenized'].apply(lambda x: [1]*len(x))
         df['Token-Tensor'] = df['TokenID'].apply(lambda x: torch.tensor([x]))
         df['Segment-Tensor'] = df['SegmentID'].apply(lambda x: torch.tensor([x]))
         print(SIMP+fblue+bgray+'\n Data Prepared For BERT!'+End)
@@ -129,3 +136,27 @@ def Preprocess():
     
 
     return df
+
+
+
+
+
+
+
+def Concat(df: pd.DataFrame, col: str, i: int):
+    if (len(df)-1) == i:
+        return df[col].iloc[i]
+    return np.concatenate((df[col].iloc[i], Concat(df, col, i+1)), axis=0)
+
+
+
+
+
+def Split(arr: np.array, df: pd.DataFrame, col: str):
+    l = []
+    pos = 0
+    for i in range(len(df)):
+        l.append(list(arr[pos:len(df[col].iloc[i])]))
+        pos += len(df[col].iloc[i])
+    
+    return l

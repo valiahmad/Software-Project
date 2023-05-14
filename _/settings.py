@@ -18,16 +18,20 @@ def setting(setting = None):
 
 
 listofSet = [\
-    ['\nRead Excel File : #1 YES   #2 NO : ',\
-    'Excel File', True, False],\
+    ['\nSelect Dataset : #1 Hu and Liu Datasets   #2 Stanford Datasets : ',\
+    'Hu and Liu Datasets', True, False],\
+    ['\nLowercase : #1 YES   #2 NO : ',\
+    'Lowercase', True, False],\
     ['\nPunctuation Removal : #1 YES   #2 NO : ',\
     'Punctuation', True, False],\
     ['\nDigit Removal : #1 YES   #2 NO : ',\
     'Digit', True, False],\
     ['\nDo you want to remove reviews less than 10 letters : #1 YES   #2 NO : ',\
     '<10letters', True, False],\
-    ['\nDo you want to tokenize : #1 YES   #2 NO : ',\
+    ['\nDo you want to tokenize(NLTK) : #1 YES   #2 NO : ',\
     'Tokenization', True, False],\
+    ['\nDo you want to tokenize(BERT) : #1 YES   #2 NO : ',\
+    'BERT-Tokenization', True, False],\
     ['\nStopWords : #1 YES   #2 NO : ',\
     'StopWords', True, False],\
     ['\nPOS Tagging : #1 YES   #2 NO : ',\
@@ -38,6 +42,10 @@ listofSet = [\
      'Stemming', True, False],\
     ['\nLemmatization : #1 YES   #2 NO : ',\
      'Lemmatization', True, False],\
+    ['\Formatting for BERT : #1 Prepare   #2 Don\'t : ',\
+     'BERT Format', True, False],\
+    ['\nFix Problem : #1 Active   #2 Deactive : ',\
+     'Fix Problem', True, False],\
     ['\nDo You Want To Show A Report : #1 YES   #2 NO : ',\
     'Report', True, False]
     ]

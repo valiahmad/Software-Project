@@ -1,10 +1,9 @@
 # from preprocessing import Preprocess
-from transformers import BertModel
 import pandas as pd
-from torch import tensor
 import torch
+from transformers import BertModel
 from gensim.models import Word2Vec
-# df = Preprocess()
+
 
 
 def BERTVectorizer(model, tokenTensor, segmentTensor, concat=True):
@@ -23,8 +22,6 @@ def BERTVectorizer(model, tokenTensor, segmentTensor, concat=True):
     # Swap dimensions 0 and 1.
     token_embeddings = token_embeddings.permute(1,0,2)
     # token_embeddings.size()
-
-
     if concat:
         # Stores the token vectors, with shape [22 x 3,072]
         token_vecs_cat = []
@@ -41,7 +38,6 @@ def BERTVectorizer(model, tokenTensor, segmentTensor, concat=True):
         # print ('Shape is: %d x %d' % (len(token_vecs_cat), len(token_vecs_cat[0])))
         # Shape is: 10 x 3072
         return token_vecs_cat
-    
     else:
         # Stores the token vectors, with shape [22 x 768]
         token_vecs_sum = []
@@ -58,54 +54,52 @@ def BERTVectorizer(model, tokenTensor, segmentTensor, concat=True):
         return token_vecs_sum
 
 
+def wordEmbed(df: pd.DataFrame):
+
+    '''
+
+    BERT Model
+
+    '''
+    # Load pre-trained model (weights)
+    bmodel = BertModel.from_pretrained('bert-base-uncased',output_hidden_states = True)
+
+    # Put the model in "evaluation" mode, meaning feed-forward operation.
+    bmodel.eval()
+
+    df['BERT'] = ''
+    for i in range(len(df)):
+        df['BERT'].iloc[i] = BERTVectorizer(bmodel, df['Token-Tensor'].iloc[i], df['Segment-Tensor'].iloc[i])
+
+    df['BERT'] = df['BERT'].apply(lambda x: [w.numpy() for w in x])
+
+    del bmodel
+    #######################################################################################################
 
 
 
-df = pd.read_excel('file_small.xlsx')
-df['BERT-Tokenized']=df['BERT-Tokenized'].apply(eval)
-df['TokenID']=df['TokenID'].apply(eval)
-df['SegmentID']=df['SegmentID'].apply(eval)
-df['Token-Tensor']=df['Token-Tensor'].apply(lambda x: eval(x))
-df['Segment-Tensor']=df['Segment-Tensor'].apply(lambda x: eval(x))
+    '''
 
+    Word2Vec Model
 
-'''
+    '''
 
-BERT Model
+    # Model parameters   (window=30, min_count=100, sg=1, vecoto_size=300, wprkers=8)
+    wvmodel = Word2Vec(window=30, min_count=100, sg=1, vector_size=300, workers=8)
 
-'''
-# Load pre-trained model (weights)
-model = BertModel.from_pretrained('bert-base-uncased',output_hidden_states = True)
+    # Train the model
+    wvmodel.build_vocab(df['Tokenized'])
+    wvmodel.train(df['Tokenized'], total_examples=wvmodel.corpus_count, epochs=wvmodel.epochs)
 
-# Put the model in "evaluation" mode, meaning feed-forward operation.
-model.eval()
+    # Save the trained model
+    # model.save("word_embedded.model")
 
-df['BERT'] = ''
-for i in range(len(df)):
-    df['BERT'].iloc[i] = BERTVectorizer(model, df['Token-Tensor'].iloc[i], df['Segment-Tensor'].iloc[i])
+    # Keep Vectors
+    word_vectors = wvmodel.wv
+    # Delete Model
+    del wvmodel
 
+    df['Word2Vec'] = df['Tokenized'].apply(lambda x: [word_vectors[w] for w in x])
+    ##############################################################################
 
-
-
-'''
-
-Word2Vec Model
-
-'''
-
-# Model parameters   (window=30, min_count=100, sg=1, vecoto_size=300, wprkers=8)
-model = Word2Vec(window=30, min_count=100, sg=1, vector_size=300, workers=8)
-
-# Train the model
-model.build_vocab(df['Tokenized'])
-model.train(df['Tokenized'], total_examples=model.corpus_count, epochs=model.epochs)
-
-# Save the trained model
-# model.save("word_embedded.model")
-
-# Keep Vectors
-word_vectors = model.wv
-# Delete Model
-del model
-
-df['Word2Vec'] = df['Tokenized'].apply(lambda x: [word_vectors[w] for w in x])
+    return df
