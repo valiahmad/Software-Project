@@ -5,6 +5,7 @@ import string
 import torch
 import pandas as pd
 import numpy as np
+import json
 from _.settings import setting
 from _.datasetToDict import Parse
 from nltk.tokenize import word_tokenize
@@ -14,6 +15,7 @@ from nltk import pos_tag
 from nltk.corpus import stopwords
 from nltk.stem.snowball import SnowballStemmer
 from nltk.stem import WordNetLemmatizer
+from nltk.corpus import sentiwordnet as swn
 
 # Reading the settings
 Settings = setting()
@@ -45,7 +47,7 @@ def Preprocess():
         print(dfL.head())
         print(dfR.head())
 
-    
+    # TODO: put a FOR-LOOP for this section
 
     # To Lowercase
     if Settings['Lowercase']:
@@ -152,6 +154,8 @@ def Concat(df: pd.DataFrame, col: str, i: int):
 
 
 
+
+
 def Split(arr: np.array, df: pd.DataFrame, col: str):
     l = []
     pos = 0
@@ -160,3 +164,129 @@ def Split(arr: np.array, df: pd.DataFrame, col: str):
         pos += len(df[col].iloc[i])
     
     return l
+
+
+
+
+
+
+
+def getID(n):
+    
+    while(True):
+        arr = np.random.randint(10000, 999999, n*10)
+        if len(set(arr)) >= n:
+            return np.array(list(set(arr)))
+
+
+
+
+
+
+
+def setID(df: pd.DataFrame, col: str):
+    n = 0
+    for i in range(len(df)):
+        n += len(df[col].iloc[i])
+
+    IDs = getID(n)
+
+    return Split(IDs, df, col)
+    
+
+
+
+
+
+
+def freqDist(df: pd.DataFrame, cols: list):
+    # {Label:{Word:FreqDist}}
+    fd = {}
+    Vectors_Clusters = cols[0]
+    Tagged_Sentences = cols[1]
+
+    for i in range(len(df)):
+        for j in range(len(df[Vectors_Clusters].iloc[i])):
+            if df[Vectors_Clusters].iloc[i][j] in fd:
+                if df[Tagged_Sentences].iloc[i][j][0] in fd[df[Vectors_Clusters].iloc[i][j]]:
+                    fd[df[Vectors_Clusters].iloc[i][j]][df[Tagged_Sentences].iloc[i][j][0]] += 1
+                else:
+                    fd[df[Vectors_Clusters].iloc[i][j]][df[Tagged_Sentences].iloc[i][j][0]] = 1
+            else:
+                fd[df[Vectors_Clusters].iloc[i][j]] = {df[Tagged_Sentences].iloc[i][j][0] : 1}
+
+    return fd
+
+
+
+
+
+
+
+def distSpace(df: pd.DataFrame, cols: list):
+    # {Label:[[id, Dist-Space, Labels]...]}
+    ds = {}
+    Vectors_Clusters = cols[1]
+    IDs = cols[0]
+    Coordinates = cols[2]
+
+    with open('centers_clusters.json') as file:
+        cc = json.load(file)
+    cc = cc[Vectors_Clusters]
+
+    # CC[0]->Label 0
+
+    return ds
+
+
+
+
+
+
+
+def prepItems(df: pd.DataFrame, cols: list):
+    # {id:word}
+    d = {}
+    Tagged_Sentences = cols[0] 
+    IDs = cols[1]
+    
+    for i in range(len(df)):
+        for j in range(len(df[IDs].iloc[i])):
+            d[df[IDs].iloc[i][j]] = df[Tagged_Sentences].iloc[i][j][0]
+
+    return d
+
+
+
+
+
+
+
+def Polarity(doc: list):
+
+    pos = 0
+    neg = 0
+    rate = .013
+    count = 0
+    
+    for word in doc:
+        sentiSet = list(swn.senti_synsets(word))
+        if len(sentiSet) == 0:
+            continue
+        else:
+            count += 1
+            sentiSet0 = sentiSet[0]
+            pos += sentiSet0.pos_score()
+            neg += sentiSet0.neg_score()
+    
+    if count:
+        distance = abs((pos/count) - (neg/count))
+    else:
+        distance = 0
+    
+    if distance < rate:
+        return 0
+    elif pos > neg:
+        return 1
+    else:
+        return -1

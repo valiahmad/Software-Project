@@ -71,7 +71,7 @@ def wordEmbed(df: pd.DataFrame):
     for i in range(len(df)):
         df['BERT'].iloc[i] = BERTVectorizer(bmodel, df['Token-Tensor'].iloc[i], df['Segment-Tensor'].iloc[i])
 
-    df['BERT'] = df['BERT'].apply(lambda x: [w.numpy() for w in x])
+    df['BERT'] = df['BERT'].apply(lambda x: [w.numpy() for w in x[1:-1]])
 
     del bmodel
     #######################################################################################################
