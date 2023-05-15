@@ -7,7 +7,7 @@ from clustering import Labels
 def FeatureSelector(df: pd.DataFrame, cols: list):
 
     Id = 0
-    DistSpace = 1
+    DistSpace = 2
 
     Tagged_Sentences = cols[0]
     IDs = cols[1]

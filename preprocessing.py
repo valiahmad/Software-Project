@@ -224,17 +224,35 @@ def freqDist(df: pd.DataFrame, cols: list):
 
 
 def distSpace(df: pd.DataFrame, cols: list):
-    # {Label:[[id, Dist-Space, Labels]...]}
+    # {Label:[[id, coordinate, Dist-Space]...]}
     ds = {}
     Vectors_Clusters = cols[1]
     IDs = cols[0]
     Coordinates = cols[2]
+
+    for i in range(len(df)):
+        for j in range(len(df[IDs].iloc[i])):
+            if df[Vectors_Clusters].iloc[i][j] in ds:
+                ds[df[Vectors_Clusters].iloc[i][j]].append([
+                    df[IDs].iloc[i][j],
+                    df[Coordinates].iloc[i][j]
+                ])
+            else:
+                ds[df[Vectors_Clusters].iloc[i][j]] = [df[IDs].iloc[i][j], df[Coordinates].iloc[i][j]]
 
     with open('centers_clusters.json') as file:
         cc = json.load(file)
     cc = cc[Vectors_Clusters]
 
     # CC[0]->Label 0
+    cor = 1 #Coordinate index
+    for label in range(len(cc)):
+        for feature in range(len(ds[label])):
+            ds[label][feature].append(
+                np.sqrt(
+                (cc[label][0] - ds[label][feature][cor][0])**2 
+                + (cc[label][1] - ds[label][feature][cor][1])**2)
+            )
 
     return ds
 
