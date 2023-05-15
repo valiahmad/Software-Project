@@ -7,7 +7,7 @@ import pandas as pd
 import numpy as np
 import json
 from _.settings import setting
-from _.datasetToDict import Parse
+from _.datasetParser import Parse
 from nltk.tokenize import word_tokenize
 from transformers import BertTokenizer
 from spellchecker import SpellChecker
@@ -19,43 +19,30 @@ from nltk.corpus import sentiwordnet as swn
 
 # Reading the settings
 Settings = setting()
-
+path = 'integrated_dataset.xlsx'
 
 
 def Preprocess():
 
-    # TODO: Match Datasets
     # Loading Data
-    if Settings['Hu and Liu Datasets']:
-        df = Parse()
-        df = df.returnMode(dataFrameMode=True)
+    if Settings['Excel File']:
+        df = pd.read_excel(path)
         print(df.head())
     else:
-        path = [
-            './Datasets\\Laptops\\train.json',
-            './Datasets\\Laptops\\test.json',
-            './Datasets\\Restaurants\\train.json',
-            './Datasets\\Restaurants\\test.json'
-        ]
-        dfLtr = pd.read_json(path[0])
-        dfLte = pd.read_json(path[1])
-        dfRtr = pd.read_json(path[2])
-        dfRte = pd.read_json(path[3])
-        dfL = pd.concat([dfLtr, dfLte], ignore_index=True)
-        dfR = pd.concat([dfRtr, dfRte], ignore_index=True)
-        del dfLtr, dfLte, dfRtr, dfRte
-        print(dfL.head())
-        print(dfR.head())
+        df = Parse()
+        df = df.returnType(dataFrameMode=True)
+        print(df.head())
 
-    # TODO: put a FOR-LOOP for this section
+    
 
     # To Lowercase
     if Settings['Lowercase']:
-        df['Review'] = df['Review'].str.lower()
+        df.loc[df['Category'] == 'Hu&Liu', 'Review'] = df['Review'].str.lower()
         
     # Punctuations Removal !"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~
     if Settings['Punctuation']:
-        df['Review'] = df['Review'].str.translate(str.maketrans('', '', string.punctuation))
+        df.loc[df['Category'] == 'Hu&Liu', 'Review'] = df['Review']\
+        .str.translate(str.maketrans('', '', string.punctuation))
         print(SIMP+fblue+bgray+'\n Punctuation Removal Done!'+End)
 
     # Digit Removal
@@ -65,12 +52,12 @@ def Preprocess():
 
     # Reviews Removal of less than 10 letters
     if Settings['<10letters']:
-        df = df.drop(df[df['Review'].str.len() < 10].index)
+        df = df.drop(df[df['Review'].str.len() < 10 and df['Category'] == 'Hu&Liu'].index)
         print(SIMP+fblue+bgray+'\n Less Than 10 Letters Reviews Droped!'+End)
 
     # Tokenized reviews text
     if Settings['Tokenization']:
-        df['Tokenized'] = df['Review'].apply(word_tokenize)
+        df.loc[df['Categoty'] == 'Hu&Liu', 'Tokenized'] = df['Review'].apply(word_tokenize)
         print(SIMP+fblue+bgray+'\n Tokenization Done!'+End)
     else:
         print(BOLD+fred+bgray+'\nData is NOT Tokenized!!!'+End)
@@ -85,11 +72,10 @@ def Preprocess():
     else:
         print(BOLD+fred+bgray+'\nData is NOT Tokenized(BERT)!!!'+End)
         input('\nTo Continue Press Enter...')
-
+    # TODO : for BERT_
     # Correcting word spells
     if Settings['Spell Checking']:
         spell = SpellChecker()
-        df['Tokenized-Original'] = df['Tokenized']
         df['Tokenized'] = df['Tokenized'].apply(lambda x: [spell.correction(word) for word in x])
         df['Tokenized'] = df['Tokenized'].apply(lambda x: [word for word in x if word is not None])
         print(SIMP+fblue+bgray+'\n Spell Checked!'+End)
@@ -105,20 +91,21 @@ def Preprocess():
     # StopWords Removing
     if Settings['StopWords']:
         stop_words = set(stopwords.words('english'))
-        df['StopWordsRemoved'] = df['Tokenized'].apply(
-            lambda x: [word for word in x if word.lower() not in stop_words])
+        df['StopWordsRemoved'] = df['Tagged'].apply(
+            lambda x: [word for word in x if word[0].lower() not in stop_words])
         print(SIMP+fblue+bgray+'\n StopWords Removal Done!'+End)
 
     # Stemming
     if Settings['Stemming']:
         stemmer = SnowballStemmer("english")
-        df['Stemmed'] = df['Tokenized'].apply(lambda x: [stemmer.stem(word) for word in x])
+        df['Stemmed'] = df['StopWordsRemoved'].apply(
+            lambda x: [(stemmer.stem(word[0]),word[1]) for word in x])
         print(SIMP+fblue+bgray+'\n Words Stemmed!'+End)
 
     # Lemmatization
     if Settings['Lemmatization']:
         wnl = WordNetLemmatizer()
-        df['Lemmatized'] = df['Tokenized'].apply(lambda x: [wnl.lemmatize(word, 'v') for word in x])
+        df['Lemmatized'] = df['Stemmed'].apply(lambda x: [wnl.lemmatize(word[0], word[1]) for word in x])
         print(SIMP+fblue+bgray+'\n Lemmatization Done!'+End)
 
     # Fixing the problems with dataset

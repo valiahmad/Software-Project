@@ -89,7 +89,16 @@ class Parse:
                 if S[i] == '\n' and R:
                     R = 0
                     G = 1
-                    data[CR] = {'Review':w[1:].strip(), 'Features':f, 'Feature':'Yes', 'Feature List':fl, 'Polarity List':pl}
+                    if 'ft1' in f:
+                        data[CR] = {'Review':w[1:].strip(), 
+                                    'Features':f, 'Feature':'Yes', 
+                                    'Feature List':fl, 'Polarity List':pl, 
+                                    'Feature Type':'Yes'}
+                    else:
+                        data[CR] = {'Review':w[1:].strip(), 
+                                    'Features':f, 'Feature':'Yes', 
+                                    'Feature List':fl, 'Polarity List':pl, 
+                                    'Feature Type':'No'}
                     CR += 1
                     f = {}
                     fl = []
@@ -116,7 +125,6 @@ class Parse:
             
         
 
-
     def writeToExcel(self, add, index=True, transpose=True):
         # writing to EXCEL
         df = pd.DataFrame(data)
@@ -128,9 +136,43 @@ class Parse:
         print(df.head)
         df.to_excel(add,index=index)
 
-    def returnMode(self, dictMode=False, dataFrameMode=True):
+    def returnType(self, dictMode=False, dataFrameMode=True):
         if dataFrameMode:
-            return pd.DataFrame(data).T
+            df = pd.DataFrame(data).T
+            df = df[df['Feature List'].str.len() == 1]
+            df = df[df['Feature Type'] == 'No']
+            df['Polarity List'] = df['Polarity List'].apply(lambda x: x[0])
+            df.loc[df['Polarity List'] > 0, 'Polarity'] = 'positive'
+            df.loc[df['Polarity List'] < 0, 'Polarity'] = 'negative'
+            df['Category'] = 'Hu&Liu'
+            
+            ########################################################
+            path = [
+            './Datasets\\Laptops\\train.json',
+            './Datasets\\Laptops\\test.json',
+            './Datasets\\Restaurants\\train.json',
+            './Datasets\\Restaurants\\test.json'
+            ]
+            dfLtr = pd.read_json(path[0])
+            dfLte = pd.read_json(path[1])
+            dfRtr = pd.read_json(path[2])
+            dfRte = pd.read_json(path[3])
+            dfL = pd.concat([dfLtr, dfLte], ignore_index=True)
+            dfR = pd.concat([dfRtr, dfRte], ignore_index=True)
+            del dfLtr, dfLte, dfRtr, dfRte
+            dfR['Category'] = 'Restaurant'
+            dfL['Category'] = 'Laptops'
+            
+            dfLR = pd.concat([dfR, dfL], ignore_index=True)
+            dfLR = dfLR[dfLR['aspects'].str.len() == 1]
+            dfLR['Feature List'] = dfLR['aspects'].apply(lambda x: x[0]['term'])
+            dfLR['Polarity'] = dfLR['aspects'].apply(lambda x: x[0]['polarity'])
+            dfLR = dfLR[dfLR['Feature List'].str.len()==1]
+            
+            ########################################################
+            df = pd.concat([dfLR, df], ignore_index=True)
+
+            return df
+        
         elif dictMode:
             return data
-        

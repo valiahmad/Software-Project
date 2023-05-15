@@ -18,7 +18,7 @@ def setting(setting = None):
 
 
 listofSet = [\
-    ['\nSelect Dataset : #1 Hu and Liu Datasets   #2 Stanford Datasets : ',\
+    ['\nRead Dataset from Excel File : #1 Yes   #2 No : ',\
     'Hu and Liu Datasets', True, False],\
     ['\nLowercase : #1 YES   #2 NO : ',\
     'Lowercase', True, False],\
