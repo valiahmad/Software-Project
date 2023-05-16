@@ -67,12 +67,20 @@ def wordEmbed(df: pd.DataFrame):
     # Put the model in "evaluation" mode, meaning feed-forward operation.
     bmodel.eval()
 
-    df['BERT'] = ''
+    df['BERT-Base'] = ''
     for i in range(len(df)):
-        df['BERT'].iloc[i] = BERTVectorizer(bmodel, df['Token-Tensor'].iloc[i], df['Segment-Tensor'].iloc[i])
+        df['BERT-Base'].iloc[i] = BERTVectorizer(bmodel, df['Token-Tensor'].iloc[i], df['Segment-Tensor'].iloc[i])
 
-    df['BERT'] = df['BERT'].apply(lambda x: [w.numpy() for w in x[1:-1]])
+    df['BERT-Base'] = df['BERT-Base'].apply(lambda x: [w.numpy() for w in x[1:-1]])
 
+    del bmodel
+
+    bmodel = BertModel.from_pretrained('bert-large-uncased',output_hidden_states = True)
+    bmodel.eval()
+    df['BERT-Large'] = ''
+    for i in range(len(df)):
+        df['BERT-Large'].iloc[i] = BERTVectorizer(bmodel, df['Token-Tensor'].iloc[i], df['Segment-Tensor'].iloc[i])
+    df['BERT-Large'] = df['BERT- Large'].apply(lambda x: [w.numpy() for w in x[1:-1]])
     del bmodel
     #######################################################################################################
 

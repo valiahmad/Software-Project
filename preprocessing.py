@@ -1,13 +1,11 @@
 from _.Color import *
 print(BOLD+fgray+bwhite+' Preprocessing'+End)
-
 import string
 import torch
 import pandas as pd
 import numpy as np
 import json
 from _.settings import setting
-from _.datasetParser import Parse
 from nltk.tokenize import word_tokenize
 from transformers import BertTokenizer
 from spellchecker import SpellChecker
@@ -19,110 +17,123 @@ from nltk.corpus import sentiwordnet as swn
 
 # Reading the settings
 Settings = setting()
-path = 'integrated_dataset.xlsx'
 
 
-def Preprocess():
+def Preprocess(procedures: list):
 
-    # Loading Data
-    if Settings['Excel File']:
-        df = pd.read_excel(path)
+    for item in procedures:
+        # Loading Data
+        path_Laptops = './Datasets/Laptops.xlsx'
+        path_Rest = './Datasets/Restaurant.xlsx'
+        dfL = pd.read_excel(path_Laptops)
+        dfR = pd.read_excel(path_Rest)
+        dfL['Category'] = 'Laptops'
+        dfR['Category'] = 'Restaurant'
+        df = pd.concat([dfL, dfR], ignore_index=True)
+        df = df.rename(columns=
+                        {'id':'SenID',
+                        'Sentence':'Review',
+                        'Aspect Term':'Feature',
+                        'polarity':'Polarity'}
+                    )
+        df = df.drop(columns=['from', 'to'])
+        print(len(df))
         print(df.head())
-    else:
-        df = Parse()
-        df = df.returnType(dataFrameMode=True)
-        print(df.head())
 
-    
-
-    # To Lowercase
-    if Settings['Lowercase']:
-        df.loc[df['Category'] == 'Hu&Liu', 'Review'] = df['Review'].str.lower()
         
-    # Punctuations Removal !"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~
-    if Settings['Punctuation']:
-        df.loc[df['Category'] == 'Hu&Liu', 'Review'] = df['Review']\
-        .str.translate(str.maketrans('', '', string.punctuation))
-        print(SIMP+fblue+bgray+'\n Punctuation Removal Done!'+End)
 
-    # Digit Removal
-    if Settings['Digit']:
-        df['Review'] = df['Review'].str.translate(str.maketrans('', '', string.digits))
-        print(SIMP+fblue+bgray+'\n Digit Removal Done!'+End)
+        # To Lowercase
+        if item == 'Lowercase':
+            df['Review'] = df['Review'].str.lower()
+            
+        # Punctuations Removal !"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~
+        if item == 'Punctuation':
+            df['Review'] = df['Review'].str.\
+            translate(str.maketrans('', '', string.punctuation))
+            print(SIMP+fblue+bgray+'\n Punctuation Removal Done!'+End)
 
-    # Reviews Removal of less than 10 letters
-    if Settings['<10letters']:
-        df = df.drop(df[df['Review'].str.len() < 10 and df['Category'] == 'Hu&Liu'].index)
-        print(SIMP+fblue+bgray+'\n Less Than 10 Letters Reviews Droped!'+End)
+        # Digit Removal
+        if item == 'Digit':
+            df['Review'] = df['Review'].str.translate(str.maketrans('', '', string.digits))
+            print(SIMP+fblue+bgray+'\n Digit Removal Done!'+End)
 
-    # Tokenized reviews text
-    if Settings['Tokenization']:
-        df.loc[df['Categoty'] == 'Hu&Liu', 'Tokenized'] = df['Review'].apply(word_tokenize)
-        print(SIMP+fblue+bgray+'\n Tokenization Done!'+End)
-    else:
-        print(BOLD+fred+bgray+'\nData is NOT Tokenized!!!'+End)
-        input('\nTo Continue Press Enter...')
+        # Reviews Removal of less than 10 letters
+        if item == '<10letters':
+            df = df.drop(df[df['Review'].str.len() < 10].index)
+            print(SIMP+fblue+bgray+'\n Less Than 10 Letters Reviews Droped!'+End)
 
-    # BERT Tokenization
-    if Settings['BERT-Tokenization']:
-        tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
-        # padding='max_length',max_length=64,return_tensors="pt",return_attention_mask=True
-        df['BERT-Tokenized'] = df['Review'].apply(tokenizer.tokenize)
-        print(BOLD+fblue+bgray+'\n BERT-Tokenization Done!'+End)
-    else:
-        print(BOLD+fred+bgray+'\nData is NOT Tokenized(BERT)!!!'+End)
-        input('\nTo Continue Press Enter...')
-    # TODO : for BERT_
-    # Correcting word spells
-    if Settings['Spell Checking']:
-        spell = SpellChecker()
-        df['Tokenized'] = df['Tokenized'].apply(lambda x: [spell.correction(word) for word in x])
-        df['Tokenized'] = df['Tokenized'].apply(lambda x: [word for word in x if word is not None])
-        print(SIMP+fblue+bgray+'\n Spell Checked!'+End)
-    else:
-        print(BOLD+fred+bgray+'\nData is NOT Spell-Checked!!!'+End)
-        input('\nTo Continue Press Enter...')
+        # Tokenized reviews text
+        if item == 'Tokenization':
+            df['Tokenized'] = df['Review'].apply(word_tokenize)
+            print(SIMP+fblue+bgray+'\n Tokenization Done!'+End)
+        else:
+            print(BOLD+fred+bgray+'\nData is NOT Tokenized!!!'+End)
+            input('\nTo Continue Press Enter...')
 
-    # Tagging Part-of-Speech
-    if Settings['POS Tagging']:
-        df['Tagged'] = df['Tokenized'].apply(pos_tag)
-        print(SIMP+fblue+bgray+'\n POS Tagged!'+End)
+        # BERT Tokenization
+        if item == 'BERT-Tokenization':
+            # Base
+            tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
+            # padding='max_length',max_length=64,return_tensors="pt",return_attention_mask=True
+            df['BERT-Tokenized-Base'] = df['Review'].apply(tokenizer.tokenize)
+            
+            # Large
+            tokenizer = BertTokenizer.from_pretrained('bert-large-uncased')
+            df['BERT-Tokenized-Large'] = df['Review'].apply(tokenizer.tokenize)
+            print(BOLD+fblue+bgray+'\n BERT-Tokenization Done!'+End)
+        else:
+            print(BOLD+fred+bgray+'\nData is NOT Tokenized(BERT)!!!'+End)
+            input('\nTo Continue Press Enter...')
+        
+        # Correcting word spells
+        if item == 'Spell Checking':
+            spell = SpellChecker()
+            df['Tokenized'] = df['Tokenized'].apply(lambda x: [spell.correction(word) for word in x])
+            df['Tokenized'] = df['Tokenized'].apply(lambda x: [word for word in x if word is not None])
+            print(SIMP+fblue+bgray+'\n Spell Checked!'+End)
+        else:
+            print(BOLD+fred+bgray+'\nData is NOT Spell-Checked!!!'+End)
+            input('\nTo Continue Press Enter...')
 
-    # StopWords Removing
-    if Settings['StopWords']:
-        stop_words = set(stopwords.words('english'))
-        df['StopWordsRemoved'] = df['Tagged'].apply(
-            lambda x: [word for word in x if word[0].lower() not in stop_words])
-        print(SIMP+fblue+bgray+'\n StopWords Removal Done!'+End)
+        # Tagging Part-of-Speech
+        if item == 'POS Tagging':
+            df['Tokenized'] = df['Tokenized'].apply(pos_tag)
+            print(SIMP+fblue+bgray+'\n POS Tagged!'+End)
 
-    # Stemming
-    if Settings['Stemming']:
-        stemmer = SnowballStemmer("english")
-        df['Stemmed'] = df['StopWordsRemoved'].apply(
-            lambda x: [(stemmer.stem(word[0]),word[1]) for word in x])
-        print(SIMP+fblue+bgray+'\n Words Stemmed!'+End)
+        # StopWords Removing
+        if item == 'StopWords':
+            stop_words = set(stopwords.words('english'))
+            df['Tokenized'] = df['Tokenized'].apply(
+                lambda x: [word for word in x if word[0].lower() not in stop_words])
+            print(SIMP+fblue+bgray+'\n StopWords Removal Done!'+End)
 
-    # Lemmatization
-    if Settings['Lemmatization']:
-        wnl = WordNetLemmatizer()
-        df['Lemmatized'] = df['Stemmed'].apply(lambda x: [wnl.lemmatize(word[0], word[1]) for word in x])
-        print(SIMP+fblue+bgray+'\n Lemmatization Done!'+End)
+        # Stemming
+        if item == 'Stemming':
+            stemmer = SnowballStemmer("english")
+            df['Tokenized'] = df['Tokenized'].apply(
+                lambda x: [(stemmer.stem(word[0]),word[1]) for word in x])
+            print(SIMP+fblue+bgray+'\n Words Stemmed!'+End)
 
-    # Fixing the problems with dataset
-    if Settings['Fix Problem']:
+        # Lemmatization
+            wnl = WordNetLemmatizer()
+            df['Tokenized'] = df['Tokenized'].apply(lambda x: [wnl.lemmatize(word[0]) for word in x])
+            print(SIMP+fblue+bgray+'\n Lemmatization Done!'+End)
 
-        print(SIMP+fblue+bgray+'\n Problems With The Dataset Fixed!'+End)
-    
-    # Formatting for BERT
-    if Settings['BERT Format']:
-        df['BERT-Tokenized'] = df['BERT-Tokenized'].apply(lambda x: ['[CLS]'] + x + ['[SEP]'])
-        df['TokenID'] = df['BERT-Tokenized'].apply(tokenizer.convert_tokens_to_ids)
-        df['SegmentID'] = df['BERT-Tokenized'].apply(lambda x: [1]*len(x))
-        df['Token-Tensor'] = df['TokenID'].apply(lambda x: torch.tensor([x]))
-        df['Segment-Tensor'] = df['SegmentID'].apply(lambda x: torch.tensor([x]))
-        print(SIMP+fblue+bgray+'\n Data Prepared For BERT!'+End)
-    
-    
+        # Fixing the problems with dataset
+        if Settings['Fix Problem']:
+
+            print(SIMP+fblue+bgray+'\n Problems With The Dataset Fixed!'+End)
+        
+        # Formatting for BERT
+        if item == 'BERT Format':
+            df['BERT-Tokenized'] = df['BERT-Tokenized'].apply(lambda x: ['[CLS]'] + x + ['[SEP]'])
+            df['TokenID'] = df['BERT-Tokenized'].apply(tokenizer.convert_tokens_to_ids)
+            df['SegmentID'] = df['BERT-Tokenized'].apply(lambda x: [1]*len(x))
+            df['Token-Tensor'] = df['TokenID'].apply(lambda x: torch.tensor([x]))
+            df['Segment-Tensor'] = df['SegmentID'].apply(lambda x: torch.tensor([x]))
+            print(SIMP+fblue+bgray+'\n Data Prepared For BERT!'+End)
+        
+        
 
     return df
 

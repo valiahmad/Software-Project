@@ -1,0 +1,1 @@
+{"Lowercase": true, "Punctuation": true, "Digit": false, "<10letters": true, "Tokenization": true, "BERT-Tokenization": true, "StopWords": true, "POS Tagging": true, "Spell Checking": true, "Stemming": true, "Lemmatization": true, "BERT Format": true, "Fix Problem": true, "Report": true}

@@ -19,7 +19,7 @@ def setting(setting = None):
 
 listofSet = [\
     ['\nRead Dataset from Excel File : #1 Yes   #2 No : ',\
-    'Hu and Liu Datasets', True, False],\
+    'Excel File', True, False],\
     ['\nLowercase : #1 YES   #2 NO : ',\
     'Lowercase', True, False],\
     ['\nPunctuation Removal : #1 YES   #2 NO : ',\
@@ -50,7 +50,7 @@ listofSet = [\
     'Report', True, False]
     ]
 
-def set():
+def setInit():
     i = 0
     S = dict()
     while True:
