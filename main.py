@@ -6,13 +6,13 @@ from word_embedding import wordEmbed
 from dimensionality_reduction import dimReduc
 from clustering import Cluster
 from feature_selection import FeatureSelector
-print(ITALIC+fwhite+bgreen_yashmi+'\n Loading Done!'+End)
 from _.settings import setInit
-Settings = setInit()
+print(ITALIC+fwhite+bgreen_yashmi+'\n Loading Done!'+End)
+procedures = setInit()
 
 
 
-df = Preprocess()
+df = Preprocess(procedures)
 
 df = wordEmbed(df)
 

@@ -1,74 +1,29 @@
-import json
-
-def setting(setting = None):
-    
-    if setting:
-        f = open('setting.ssm', 'w')
-        json.dump(setting,f)
-        f.close()
-        
-        
-    elif not setting:
-        f = open('setting.ssm')
-        setting = json.load(f)
-        f.close()
-        
-
-    return setting
-
-
-listofSet = [\
-    ['\nRead Dataset from Excel File : #1 Yes   #2 No : ',\
-    'Excel File', True, False],\
-    ['\nLowercase : #1 YES   #2 NO : ',\
-    'Lowercase', True, False],\
-    ['\nPunctuation Removal : #1 YES   #2 NO : ',\
-    'Punctuation', True, False],\
-    ['\nDigit Removal : #1 YES   #2 NO : ',\
-    'Digit', True, False],\
-    ['\nDo you want to remove reviews less than 10 letters : #1 YES   #2 NO : ',\
-    '<10letters', True, False],\
-    ['\nDo you want to tokenize(NLTK) : #1 YES   #2 NO : ',\
-    'Tokenization', True, False],\
-    ['\nDo you want to tokenize(BERT) : #1 YES   #2 NO : ',\
-    'BERT-Tokenization', True, False],\
-    ['\nStopWords : #1 YES   #2 NO : ',\
-    'StopWords', True, False],\
-    ['\nPOS Tagging : #1 YES   #2 NO : ',\
-    'POS Tagging', True, False],\
-    ['\nSpell Checking : #1 YES   #2 NO : ',\
-     'Spell Checking', True, False],\
-    ['\nStemming : #1 YES   #2 NO : ',\
-     'Stemming', True, False],\
-    ['\nLemmatization : #1 YES   #2 NO : ',\
-     'Lemmatization', True, False],\
-    ['\Formatting for BERT : #1 Prepare   #2 Don\'t : ',\
-     'BERT Format', True, False],\
-    ['\nFix Problem : #1 Active   #2 Deactive : ',\
-     'Fix Problem', True, False],\
-    ['\nDo You Want To Show A Report : #1 YES   #2 NO : ',\
-    'Report', True, False]
-    ]
 
 def setInit():
-    i = 0
-    S = dict()
-    while True:
-        option = input(listofSet[i][0])
-        if option == '1':
-            S[listofSet[i][1]] = listofSet[i][2]
-            i += 1
-        elif option == '2':
-            S[listofSet[i][1]] = listofSet[i][3]
-            i += 1
-        elif option == '3':
-            S[listofSet[i][1]] = listofSet[i][4]
-            i += 1
-        elif option == '4':
-            S[listofSet[i][1]] = listofSet[i][5]
-            i += 1
-        else:
-            print('\nPlease Try Againg!!! ')
-        if i == len(listofSet):
-            break
-    return setting(S)
+    setList = {'Lowercase':0, 'Punctuation':0, 'Digit':0, '<10letters':0,
+               'Tokenization':0, 'BERT-Tokenization':0,
+               'Spell Checking':0, 'POS Tagging':0,
+               'StopWords':0, 'Stemming':0, 'Lemmatization':0,
+               'BERT-Format':0
+               }
+    option = ['Lowercase', 'Punctuation', 'Digit', '<10letters',
+              'Tokenization', 'BERT-Tokenization',
+              'Spell Checking', 'POS Tagging', 'StopWords',
+              'Stemming', 'Lemmatization', 'BERT-Format'
+              ]
+    print('\n*To set the procedures of preprocessing \nfor each item enter the numbers in order and press Enter. (Ex.: 2,4,1,3,...)')
+    for i in range(len(option)):
+        print(i+1,'.',option[i])
+    s = input()
+    s = s.split(',')
+    for i in range(len(s)):
+        setList[option[int(s[i])-1]] = i+1
+    
+    setList = {val:key for key, val in setList.items()}
+
+    print('The order is set: ')
+    for i in range(1, len(setList)):
+        if i in setList:
+            print(i, '.',setList[i])
+    
+    return setList
