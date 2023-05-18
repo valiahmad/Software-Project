@@ -1,4 +1,4 @@
-
+from _.Color import *
 def setInit():
     setList = {'Lowercase':0, 'Punctuation':0, 'Digit':0, '<10letters':0,
                'Tokenization':0, 'BERT-Tokenization':0,
@@ -11,19 +11,27 @@ def setInit():
               'Spell Checking', 'POS Tagging', 'StopWords',
               'Stemming', 'Lemmatization', 'BERT-Format'
               ]
-    print('\n*To set the procedures of preprocessing \nfor each item enter the numbers in order and press Enter. (Ex.: 2,4,1,3,...)')
-    for i in range(len(option)):
-        print(i+1,'.',option[i])
-    s = input()
-    s = s.split(',')
-    for i in range(len(s)):
-        setList[option[int(s[i])-1]] = i+1
     
-    setList = {val:key for key, val in setList.items()}
+    while True:
 
-    print('The order is set: ')
-    for i in range(1, len(setList)):
-        if i in setList:
-            print(i, '.',setList[i])
-    
+        print(SIMP+fgreen_yashmi+bgray+'\n*To set the procedures of preprocessing \nfor each item enter the numbers in order and press Enter. (Ex.: 2,4,1,3,...)'+End)
+        for i in range(len(option)):
+            print(i+1,'.',option[i])
+        s = input()
+        s = s.split(',')
+        for i in range(len(s)):
+            setList[option[int(s[i])-1]] = i+1
+        
+        setList = {val:key for key, val in setList.items()}
+
+        print(SIMP+fgreen_yashmi+bgray+'The order is set: '+End)
+        for i in range(1, len(setList)+1):
+            if i in setList:
+                print(ITALIC+forange+bgray+str(i)+'.'+setList[i]+End)
+        
+        e = input('To edit press 0\nTo continue press any key...')
+        if e != '0':
+            break
+
+
     return setList

@@ -15,9 +15,7 @@ from nltk.stem import WordNetLemmatizer
 from nltk.corpus import sentiwordnet as swn
 
 
-##########################TEST
-path = './Trial/'
-##########################TEST
+
 
 def Preprocess(item: dict):
 
@@ -38,55 +36,55 @@ def Preprocess(item: dict):
     df = df.drop(columns=['from', 'to'])
     print(len(df))
     print(df.head())
-    df = df.sample(n=10) #TEST
-    df.to_excel(path+'dfhead.xlsx') #TEST
+    
+  
 
-    for i in range(1, len(item)):
+    for i in range(1, len(item)+1):
         if i in item:
 
             # To Lowercase
             if item[i] == 'Lowercase':
                 df['Review'] = df['Review'].str.lower()
                 print(SIMP+fblue+bgray+'\n Lowercase Done!'+End)
-                df.to_excel(path+str(i)+'lowercase.xlsx') #TEST
+                
 
             # Punctuations Removal !"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~
             elif item[i] == 'Punctuation':
                 df['Review'] = df['Review'].str.\
                 translate(str.maketrans('', '', string.punctuation))
                 print(SIMP+fblue+bgray+'\n Punctuation Removal Done!'+End)
-                df.to_excel(path+str(i)+'punctuation.xlsx') #TEST
+                
 
             # Digit Removal
             elif item[i] == 'Digit':
                 df['Review'] = df['Review'].str.translate(str.maketrans('', '', string.digits))
                 print(SIMP+fblue+bgray+'\n Digit Removal Done!'+End)
-                df.to_excel(path+str(i)+'digit.xlsx') #TEST
+                
 
             # Reviews Removal of less than 10 letters
             elif item[i] == '<10letters':
                 df = df.drop(df[df['Review'].str.len() < 10].index)
                 print(SIMP+fblue+bgray+'\n Less Than 10 Letters Reviews Droped!'+End)
-                df.to_excel(path+str(i)+'10letters.xlsx') #TEST
+                
 
             # Tokenized reviews text
             elif item[i] == 'Tokenization':
                 df['Tokenized'] = df['Review'].apply(word_tokenize)
                 print(SIMP+fblue+bgray+'\n Tokenization Done!'+End)
-                df.to_excel(path+str(i)+'Tokenized.xlsx') #TEST
+                
             
             # BERT Tokenization
             elif item[i] == 'BERT-Tokenization':
                 # Base
-                tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
+                Btokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
                 # padding='max_length',max_length=64,return_tensors="pt",return_attention_mask=True
-                df['BERT-Tokenized-Base'] = df['Review'].apply(tokenizer.tokenize)
+                df['BERT-Tokenized-Base'] = df['Review'].apply(Btokenizer.tokenize)
                 
                 # Large
-                tokenizer = BertTokenizer.from_pretrained('bert-large-uncased')
-                df['BERT-Tokenized-Large'] = df['Review'].apply(tokenizer.tokenize)
+                Ltokenizer = BertTokenizer.from_pretrained('bert-large-uncased')
+                df['BERT-Tokenized-Large'] = df['Review'].apply(Ltokenizer.tokenize)
                 print(SIMP+fblue+bgray+'\n BERT-Tokenization Done!'+End)
-                df.to_excel(path+str(i)+'BERT_Tokenized.xlsx') #TEST
+                
 
             # Correcting word spells
             elif item[i] == 'Spell Checking':
@@ -94,15 +92,15 @@ def Preprocess(item: dict):
                 df['Tokenized'] = df['Tokenized'].apply(lambda x: [spell.correction(word) for word in x])
                 df['Tokenized'] = df['Tokenized'].apply(lambda x: [word for word in x if word is not None])
                 print(SIMP+fblue+bgray+'\n Spell Checked!'+End)
-                df.to_excel(path+str(i)+'spellcheck.xlsx') #TEST
+                
             
             # Tagging Part-of-Speech
             elif item[i] == 'POS Tagging':
                 df['Tokenized'] = df['Tokenized'].apply(pos_tag)
                 df['Tokenized'] = df['Tokenized'].apply(lambda x: [w for w in x if 'JJ' in w[1] or 'NN' in w[1] or 'VB' in w[1]])
-                df = df[df['Tokenized'].str.len() == 0]
+                df = df[df['Tokenized'].str.len() != 0]
                 print(SIMP+fblue+bgray+'\n POS Tagged!'+End)
-                df.to_excel(path+str(i)+'POST.xlsx') #TEST
+                
 
             # StopWords Removing
             elif item[i] == 'StopWords':
@@ -110,7 +108,7 @@ def Preprocess(item: dict):
                 df['Tokenized'] = df['Tokenized'].apply(
                     lambda x: [word for word in x if word[0].lower() not in stop_words])
                 print(SIMP+fblue+bgray+'\n StopWords Removal Done!'+End)
-                df.to_excel(path+str(i)+'Stop Words.xlsx') #TEST
+                
 
             # Stemming
             elif item[i] == 'Stemming':
@@ -118,25 +116,35 @@ def Preprocess(item: dict):
                 df['Tokenized'] = df['Tokenized'].apply(
                     lambda x: [(stemmer.stem(word[0]),word[1]) for word in x])
                 print(SIMP+fblue+bgray+'\n Words Stemmed!'+End)
-                df.to_excel(path+str(i)+'Stem.xlsx') #TEST
+                
 
             # Lemmatization
             elif item[i] == 'Lemmatization':
                 wnl = WordNetLemmatizer()
-                df['Tokenized'] = df['Tokenized'].apply(lambda x: [(w[0],w[1],'a') for w in x if 'JJ' in w[1]])
-                df['Tokenized'] = df['Tokenized'].apply(lambda x: [(w[0],w[1],'v') for w in x if 'VB' in w[1]])
-                df['Tokenized'] = df['Tokenized'].apply(lambda x: [(w[0],w[1],'n') for w in x if 'NN' in w[1]])
+                df['_Tokenized'] = df['Tokenized'].apply(lambda x: [w + tuple('a') for w in x if 'JJ' in w[1]])
+                df['_Tokenized'] += df['Tokenized'].apply(lambda x: [w + tuple('v') for w in x if 'VB' in w[1]])
+                df['_Tokenized'] += df['Tokenized'].apply(lambda x: [w + tuple('n') for w in x if 'NN' in w[1]])
+                df['Tokenized'] = df['_Tokenized']
+                df = df.drop(columns=['_Tokenized'])
                 df['Tokenized'] = df['Tokenized'].apply(lambda x: [wnl.lemmatize(word[0], word[2]) for word in x])
                 print(SIMP+fblue+bgray+'\n Lemmatization Done!'+End)
-                df.to_excel(path+str(i)+'Lemma.xlsx') #TEST
+                
             
             # Formatting for BERT
             elif item[i] == 'BERT-Format':
-                df['BERT-Tokenized'] = df['BERT-Tokenized'].apply(lambda x: ['[CLS]'] + x + ['[SEP]'])
-                df['TokenID'] = df['BERT-Tokenized'].apply(tokenizer.convert_tokens_to_ids)
-                df['SegmentID'] = df['BERT-Tokenized'].apply(lambda x: [1]*len(x))
-                df['Token-Tensor'] = df['TokenID'].apply(lambda x: torch.tensor([x]))
-                df['Segment-Tensor'] = df['SegmentID'].apply(lambda x: torch.tensor([x]))
+                # Base
+                df['BERT-Tokenized-Base'] = df['BERT-Tokenized-Base'].apply(lambda x: ['[CLS]'] + x + ['[SEP]'])
+                df['TokenID-Base'] = df['BERT-Tokenized-Base'].apply(Btokenizer.convert_tokens_to_ids)
+                df['SegmentID-Base'] = df['BERT-Tokenized-Base'].apply(lambda x: [1]*len(x))
+                df['Token-Tensor-Base'] = df['TokenID-Base'].apply(lambda x: torch.tensor([x]))
+                df['Segment-Tensor-Base'] = df['SegmentID-Base'].apply(lambda x: torch.tensor([x]))
+
+                # Large
+                df['BERT-Tokenized-Large'] = df['BERT-Tokenized-Large'].apply(lambda x: ['[CLS]'] + x + ['[SEP]'])
+                df['TokenID-Large'] = df['BERT-Tokenized-Large'].apply(Ltokenizer.convert_tokens_to_ids)
+                df['SegmentID-Large'] = df['BERT-Tokenized-Large'].apply(lambda x: [1]*len(x))
+                df['Token-Tensor-Large'] = df['TokenID-Large'].apply(lambda x: torch.tensor([x]))
+                df['Segment-Tensor-Large'] = df['SegmentID-Large'].apply(lambda x: torch.tensor([x]))
                 print(SIMP+fblue+bgray+'\n Data Prepared For BERT!'+End)
             
 
@@ -306,8 +314,8 @@ def Polarity(doc: list):
         distance = 0
     
     if distance < rate:
-        return 0
+        return 'neutral'
     elif pos > neg:
-        return 1
+        return 'positive'
     else:
-        return -1
+        return 'negative'

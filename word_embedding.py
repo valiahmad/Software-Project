@@ -69,7 +69,7 @@ def wordEmbed(df: pd.DataFrame):
 
     df['BERT-Base'] = ''
     for i in range(len(df)):
-        df['BERT-Base'].iloc[i] = BERTVectorizer(bmodel, df['Token-Tensor'].iloc[i], df['Segment-Tensor'].iloc[i])
+        df['BERT-Base'].iloc[i] = BERTVectorizer(bmodel, df['Token-Tensor-Base'].iloc[i], df['Segment-Tensor-Base'].iloc[i])
 
     df['BERT-Base'] = df['BERT-Base'].apply(lambda x: [w.numpy() for w in x[1:-1]])
 
@@ -79,8 +79,8 @@ def wordEmbed(df: pd.DataFrame):
     bmodel.eval()
     df['BERT-Large'] = ''
     for i in range(len(df)):
-        df['BERT-Large'].iloc[i] = BERTVectorizer(bmodel, df['Token-Tensor'].iloc[i], df['Segment-Tensor'].iloc[i])
-    df['BERT-Large'] = df['BERT- Large'].apply(lambda x: [w.numpy() for w in x[1:-1]])
+        df['BERT-Large'].iloc[i] = BERTVectorizer(bmodel, df['Token-Tensor-Large'].iloc[i], df['Segment-Tensor-Large'].iloc[i])
+    df['BERT-Large'] = df['BERT-Large'].apply(lambda x: [w.numpy() for w in x[1:-1]])
     del bmodel
     #######################################################################################################
 

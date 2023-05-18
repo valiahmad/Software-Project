@@ -1,7 +1,7 @@
 import numpy as np
 import json
 from sklearn.cluster import KMeans
-Labels =250
+from main import Labels
 
 
 

@@ -10,6 +10,9 @@ from _.settings import setInit
 print(ITALIC+fwhite+bgreen_yashmi+'\n Loading Done!'+End)
 procedures = setInit()
 
+Labels =250
+Threshold = 0
+Top_Items = 0
 
 
 df = Preprocess(procedures)
@@ -38,7 +41,7 @@ df['IDs-NBERT'] = setID(df['Tokenized'], 'Tokenized')
 
 df['IDs-BERT-B'] = setID(df['BERT-Tokenized-Base'], 'BERT-Tokenized-Base')
 
-df['IDs-BERTL'] = setID(df['BERT-Tokenized-Large'], 'BERT-Tokenized-Large')
+df['IDs-BERT-L'] = setID(df['BERT-Tokenized-Large'], 'BERT-Tokenized-Large')
 
 df = df[['Review', 'Tokenized', 'IDs-NBERT', 'IDs-BERT-B', 'IDs-BERT-L', 'SOM_BERT-Base',
          'tSNE_BERT-Base', 'SOM_BERT-Large', 'tSNE_BERT-Large', 'SOM_Word2Vec', 'tSNE_Word2Vec', 
@@ -61,10 +64,11 @@ Prominent_Aspects_WSK = FeatureSelector(df[WSK], WSK)
 
 WtK = ['Tokenized', 'IDs-NBERT', 'tSNE_Word2Vec', 'W-t-K']
 Prominent_Aspects_WtK = FeatureSelector(df[WtK], WtK)
+
 df['Sentiment-Predicted'] = df['Tokenized'].apply(lambda x: Polarity(x))
 
 # TODO: Evaluation
 
 # TODO: GUI
 
-#TODO TEST...
+# TODO: TEST...

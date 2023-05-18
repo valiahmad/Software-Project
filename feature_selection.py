@@ -1,7 +1,7 @@
 import pandas as pd
 from operator import itemgetter
 from preprocessing import freqDist, distSpace, prepItems
-from clustering import Labels
+from main import Labels, Threshold, Top_Items
 
 
 def FeatureSelector(df: pd.DataFrame, cols: list):
@@ -22,8 +22,8 @@ def FeatureSelector(df: pd.DataFrame, cols: list):
     
     
     dic = prepItems(df[[Tagged_Sentences, IDs]], [Tagged_Sentences, IDs])
-    threshold = 0
-    top_items = 0
+    threshold = Threshold
+    top_items = Top_Items
     Prominent_Aspects = []
     
     for i in range(0, Labels):
