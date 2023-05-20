@@ -1,7 +1,7 @@
 import pandas as pd
 from operator import itemgetter
 from preprocessing import freqDist, distSpace, prepItems
-from main import Labels, Threshold, Top_Items
+from parameters import Labels, Threshold, Top_Items
 
 
 def FeatureSelector(df: pd.DataFrame, cols: list):
@@ -14,14 +14,12 @@ def FeatureSelector(df: pd.DataFrame, cols: list):
     Coordinates = cols[2]
     Vectors_Clusters = cols[3]
 
-    fd = freqDist(df[[Vectors_Clusters, Tagged_Sentences]], 
-             [Vectors_Clusters, Tagged_Sentences])
+    fd = freqDist(df, [Vectors_Clusters, Tagged_Sentences])
     
-    ds = distSpace(df[[IDs, Vectors_Clusters, Coordinates]],
-              [IDs, Vectors_Clusters, Coordinates])
+    ds = distSpace(df, [IDs, Vectors_Clusters, Coordinates])
     
+    dic = prepItems(df, [Tagged_Sentences, IDs])
     
-    dic = prepItems(df[[Tagged_Sentences, IDs]], [Tagged_Sentences, IDs])
     threshold = Threshold
     top_items = Top_Items
     Prominent_Aspects = []
@@ -35,7 +33,7 @@ def FeatureSelector(df: pd.DataFrame, cols: list):
             aspect = dic[dsl[j][Id]]
             if fd[i][aspect] >= threshold:
                 Prominent_Aspects.append([aspect, dsl[j][Id]])
-
+    
 
 
     return Prominent_Aspects

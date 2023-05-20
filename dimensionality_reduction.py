@@ -1,4 +1,5 @@
 import pandas as pd
+from _.Color import *
 from susi import SOMClustering
 from sklearn.manifold import TSNE
 
@@ -17,7 +18,7 @@ def dimReduc(df: pd.DataFrame, col: str):
                         learning_rate_end=0.05, nbh_dist_weight_mode='pseudo-gaussian', n_jobs=3, verbose=0)
 
     df['SOM_' + col] = df[col].apply(lambda x: som.fit_transform(x))
-    
+    print(ITALIC+forange+bblue+'SOM Reduction of '+col+' Done!'+End)
 
 
     '''
@@ -28,6 +29,6 @@ def dimReduc(df: pd.DataFrame, col: str):
                 random_state=25, square_distances='legacy')
 
     df['tSNE_' + col] = df[col].apply(lambda x: tSNE.fit_transform(x))
-    
+    print(ITALIC+forange+bblue+'t-SNE Reduction of '+col+' Done!'+End)
 
     return df

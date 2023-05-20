@@ -8,66 +8,116 @@ from clustering import Cluster
 from feature_selection import FeatureSelector
 from _.settings import setInit
 print(ITALIC+fwhite+bgreen_yashmi+'\n Loading Done!'+End)
-procedures = setInit()
+# procedures = setInit()
 
-Labels =250
-Threshold = 0
-Top_Items = 0
-
+procedures = {1:'Lowercase', 2:'Punctuation', 3:'Digit', 4:'<10letters',
+               5:'Tokenization', 6:'BERT-Tokenization',
+               7:'Spell Checking', 8:'POS Tagging',
+               9:'StopWords', 10:'Stemming', 11:'Lemmatization',
+               12:'BERT-Format'
+              }
 
 df = Preprocess(procedures)
+print(ITALIC+fwhite+bgreen_yashmi+'Preprocess Done!'+End)
 
 df = wordEmbed(df)
+print(ITALIC+fwhite+bgreen_yashmi+'\n wordEmbed Done!'+End)
 
-df = pd.concat([dimReduc(df['BERT-Base'], 'BERT-Base'), df], axis=1)
+##################################################################### Dimensionality Reduction
+# df = pd.concat([dimReduc(df, 'BERT-Base'), df], axis=1)
+from test import test
+df = test(df, 'BERT-Base') #TEST
+print(ITALIC+fwhite+bgreen_yashmi+'\n dimReduc BERT-Base Done!'+End)
 
-df = pd.concat([dimReduc(df['BERT-Large'], 'BERT-Large'), df], axis=1)
+# df = pd.concat([dimReduc(df, 'BERT-Large'), df], axis=1)
+df = test(df, 'BERT-Large')#TEST
+print(ITALIC+fwhite+bgreen_yashmi+'\n dimReduc BERT-Large Done!'+End)
 
-df = pd.concat([dimReduc(df['Word2Vec'], 'Word2Vec'), df], axis=1)
+# df = pd.concat([dimReduc(df, 'Word2Vec'), df], axis=1)
+df = test(df, 'Word2Vec')#TEST
+print(ITALIC+fwhite+bgreen_yashmi+'\n dimReduc Word2Vec Done!'+End)
+############################################################################ Clustring
+df['Bb-S-K'] = Split(Cluster(Concat(df, 'SOM_BERT-Base', 0), 'Bb-S-K'), df, 'SOM_BERT-Base')
+print(ITALIC+fwhite+bgreen_yashmi+'\n Clustring Bb-S-K Done!'+End)
 
-df['Bb-S-k'] = Split(Cluster(Concat(df['SOM_BERT-Base'], 'SOM_BERT-Base', 0), 'Bb-S-K'), df['SOM_BERT-Base'], 'SOM_BERT-Base')
+df['Bb-t-K'] = Split(Cluster(Concat(df, 'tSNE_BERT-Base', 0), 'Bb-t-K'), df, 'tSNE_BERT-Base')
+print(ITALIC+fwhite+bgreen_yashmi+'\n Clustring Bb-t-K Done!'+End)
 
-df['Bb-t-K'] = Split(Cluster(Concat(df['tSNE_BERT-Base'], 'tSNE_BERT-Base', 0), 'Bb-t-K'), df['tSNE_BERT-Base'], 'tSNE_BERT-Base')
+df['Bl-S-K'] = Split(Cluster(Concat(df, 'SOM_BERT-Large', 0), 'Bl-S-K'), df, 'SOM_BERT-Large')
+print(ITALIC+fwhite+bgreen_yashmi+'\n Clustring Bl-S-K Done!'+End)
 
-df['Bl-S-k'] = Split(Cluster(Concat(df['SOM_BERT-Large'], 'SOM_BERT-Large', 0), 'Bl-S-K'), df['SOM_BERT-Large'], 'SOM_BERT-Large')
+df['Bl-t-K'] = Split(Cluster(Concat(df, 'tSNE_BERT-Large', 0), 'Bl-t-K'), df, 'tSNE_BERT-Large')
+print(ITALIC+fwhite+bgreen_yashmi+'\n Clustring Bl-t-K Done!'+End)
 
-df['Bl-t-K'] = Split(Cluster(Concat(df['tSNE_BERT-Large'], 'tSNE_BERT-Large', 0), 'Bl-t-K'), df['tSNE_BERT-Large'], 'tSNE_BERT-Large')
+df['W-S-K'] = Split(Cluster(Concat(df, 'SOM_Word2Vec', 0), 'W-S-K'), df, 'SOM_Word2Vec')
+print(ITALIC+fwhite+bgreen_yashmi+'\n Clustring W-S-K Done!'+End)
 
-df['W-S-K'] = Split(Cluster(Concat(df['SOM_Word2Vec'], 'SOM_Word2Vec', 0), 'W-S-K'), df['SOM_Word2Vec'], 'SOM_Word2Vec')
+df['W-t-K'] = Split(Cluster(Concat(df, 'tSNE_Word2Vec', 0), 'W-t-K'), df, 'tSNE_Word2Vec')
+print(ITALIC+fwhite+bgreen_yashmi+'\n Clustring W-t-K Done!'+End)
+############################################################ Set ID for each token
+df['IDs-NBERT'] = setID(df, 'Tokenized')
+print(ITALIC+fwhite+bgreen_yashmi+'\n IDs-NBERT Done!'+End)
 
-df['W-t-K'] = Split(Cluster(Concat(df['tSNE_Word2Vec'], 'tSNE_Word2Vec', 0), 'W-t-K'), df['tSNE_Word2Vec'], 'tSNE_Word2Vec')
+df['IDs-BERT-B'] = setID(df, 'BERT-Tokenized-Base')
+print(ITALIC+fwhite+bgreen_yashmi+'\n IDs-BERT-B Done!'+End)
 
-df['IDs-NBERT'] = setID(df['Tokenized'], 'Tokenized')
+df['IDs-BERT-L'] = setID(df, 'BERT-Tokenized-Large')
+print(ITALIC+fwhite+bgreen_yashmi+'\n IDs-BERT-L Done!'+End)
 
-df['IDs-BERT-B'] = setID(df['BERT-Tokenized-Base'], 'BERT-Tokenized-Base')
+#############################################################
+df.to_excel('./Report/report-1.xlsx', index=False) #TEST
+print(ITALIC+fwhite+bgreen_yashmi+'\n report-1 Done!'+End)
+print(df.columns) #TEST
+df = df[['SenID', 'Review', 'Feature', 'Polarity', 'Category', 'Tokenized',
+       'BERT-Tokenized-Base', 'BERT-Tokenized-Large',
+       'SOM_BERT-Base', 'tSNE_BERT-Base', 'SOM_BERT-Large', 'tSNE_BERT-Large',
+       'SOM_Word2Vec', 'tSNE_Word2Vec', 'Bb-S-K', 'Bb-t-K', 'Bl-S-K', 'Bl-t-K',
+       'W-S-K', 'W-t-K', 'IDs-NBERT', 'IDs-BERT-B', 'IDs-BERT-L'
+       ]]
+#############################################################
 
-df['IDs-BERT-L'] = setID(df['BERT-Tokenized-Large'], 'BERT-Tokenized-Large')
+####################################################################### Feature Extraction
+BbSK = ['BERT-Tokenized-Base', 'IDs-BERT-B', 'SOM_BERT-Base', 'Bb-S-K']
+Prominent_Aspects_BbSK = FeatureSelector(df, BbSK)
+print(ITALIC+fwhite+bgreen_yashmi+'\n Prominent_Aspects_BbSK Done!'+End)
 
-df = df[['Review', 'Tokenized', 'IDs-NBERT', 'IDs-BERT-B', 'IDs-BERT-L', 'SOM_BERT-Base',
-         'tSNE_BERT-Base', 'SOM_BERT-Large', 'tSNE_BERT-Large', 'SOM_Word2Vec', 'tSNE_Word2Vec', 
-         'Bb-S-k', 'Bb-t-K', 'Bl-S-k', 'Bl-t-K', 'W-S-K', 'W-t-K']]
+BbtK = ['BERT-Tokenized-Base', 'IDs-BERT-B', 'tSNE_BERT-Base', 'Bb-t-K']
+Prominent_Aspects_BbtK = FeatureSelector(df, BbtK)
+print(ITALIC+fwhite+bgreen_yashmi+'\n Prominent_Aspects_BbtK Done!'+End)
 
-BbSK = ['Tokenized', 'IDs-BERT-B', 'SOM_BERT-Base', 'Bb-S-k']
-Prominent_Aspects_BSK = FeatureSelector(df[BbSK], BbSK)
+BlSK = ['BERT-Tokenized-Large', 'IDs-BERT-L', 'SOM_BERT-Large', 'Bl-S-K']
+Prominent_Aspects_BlSK = FeatureSelector(df, BlSK)
+print(ITALIC+fwhite+bgreen_yashmi+'\n Prominent_Aspects_BlSK Done!'+End)
 
-BbtK = ['Tokenized', 'IDs-BERT-B', 'tSNE_BERT-Base', 'Bb-t-K']
-Prominent_Aspects_BtK = FeatureSelector(df[BbtK], BbtK)
-
-BlSK = ['Tokenized', 'IDs-BERT-L', 'SOM_BERT-Large', 'Bl-S-k']
-Prominent_Aspects_BSK = FeatureSelector(df[BlSK], BlSK)
-
-BltK = ['Tokenized', 'IDs-BERT-L', 'tSNE_BERT-Large', 'Bl-t-K']
-Prominent_Aspects_BtK = FeatureSelector(df[BltK], BltK)
+BltK = ['BERT-Tokenized-Large', 'IDs-BERT-L', 'tSNE_BERT-Large', 'Bl-t-K']
+Prominent_Aspects_BltK = FeatureSelector(df, BltK)
+print(ITALIC+fwhite+bgreen_yashmi+'\n Prominent_Aspects_BltK Done!'+End)
 
 WSK = ['Tokenized', 'IDs-NBERT', 'SOM_Word2Vec', 'W-S-K']
-Prominent_Aspects_WSK = FeatureSelector(df[WSK], WSK)
+Prominent_Aspects_WSK = FeatureSelector(df, WSK)
+print(ITALIC+fwhite+bgreen_yashmi+'\n Prominent_Aspects_WSK Done!'+End)
 
 WtK = ['Tokenized', 'IDs-NBERT', 'tSNE_Word2Vec', 'W-t-K']
-Prominent_Aspects_WtK = FeatureSelector(df[WtK], WtK)
+Prominent_Aspects_WtK = FeatureSelector(df, WtK)
+print(ITALIC+fwhite+bgreen_yashmi+'\n Prominent_Aspects_WtK Done!'+End)
 
+dfPA = pd.DataFrame(columns=['Bb-S-K', 'Bb-t-K', 'Bl-S-K', 'Bl-t-K', 'W-S-K', 'W-t-K'],
+                    data=[[Prominent_Aspects_BbSK, Prominent_Aspects_BbtK, Prominent_Aspects_BlSK, 
+                           Prominent_Aspects_BltK, Prominent_Aspects_WSK, Prominent_Aspects_WtK]]
+                    )
+########################################################################## Sentiment Analysis
 df['Sentiment-Predicted'] = df['Tokenized'].apply(lambda x: Polarity(x))
+print(ITALIC+fwhite+bgreen_yashmi+'\n Sentiment-Predicted Done!'+End)
+############################################################################TEST
+dfPA.to_excel('./Report/report-PA.xlsx', index=False)
+df.to_excel('./Report/report-2-predicted-sentiment.xlsx', index=False)
+print(ITALIC+fwhite+bgreen_yashmi+'\n report-PA&report-2 Done!'+End)
+############################################################################TEST
 
 # TODO: Evaluation
+correctExtractedAspects = 0
+totalCorrectExtractedAspects = 0
+totalTrueAspects = 0
 
 # TODO: GUI
 

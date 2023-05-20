@@ -4,7 +4,6 @@ import string
 import torch
 import pandas as pd
 import numpy as np
-import json
 from nltk.tokenize import word_tokenize
 from transformers import BertTokenizer
 from spellchecker import SpellChecker
@@ -13,6 +12,7 @@ from nltk.corpus import stopwords
 from nltk.stem.snowball import SnowballStemmer
 from nltk.stem import WordNetLemmatizer
 from nltk.corpus import sentiwordnet as swn
+from parameters import n_sample
 
 
 
@@ -34,7 +34,8 @@ def Preprocess(item: dict):
                     'polarity':'Polarity'}
                 )
     df = df.drop(columns=['from', 'to'])
-    print(len(df))
+    if n_sample:
+        df = df.sample(n=n_sample)
     print(df.head())
     
   
@@ -64,7 +65,7 @@ def Preprocess(item: dict):
             # Reviews Removal of less than 10 letters
             elif item[i] == '<10letters':
                 df = df.drop(df[df['Review'].str.len() < 10].index)
-                print(SIMP+fblue+bgray+'\n Less Than 10 Letters Reviews Droped!'+End)
+                print(SIMP+fblue+bgray+'\n Less Than 10 Letters Reviews Dropped!'+End)
                 
 
             # Tokenized reviews text
@@ -97,8 +98,20 @@ def Preprocess(item: dict):
             # Tagging Part-of-Speech
             elif item[i] == 'POS Tagging':
                 df['Tokenized'] = df['Tokenized'].apply(pos_tag)
-                df['Tokenized'] = df['Tokenized'].apply(lambda x: [w for w in x if 'JJ' in w[1] or 'NN' in w[1] or 'VB' in w[1]])
+                df['Tokenized'] = df['Tokenized'].apply(
+                    lambda x: [w for w in x if 'JJ' in w[1] or 'NN' in w[1] or 'VB' in w[1]])
                 df = df[df['Tokenized'].str.len() != 0]
+
+                # BERT-Base
+                df['BERT-Tokenized-Base'] = df['BERT-Tokenized-Base'].apply(pos_tag)
+                df['BERT-Tokenized-Base'] = df['BERT-Tokenized-Base'].apply(
+                    lambda x: [w for w in x if 'JJ' in w[1] or 'NN' in w[1] or 'VB' in w[1]])
+                df = df[df['BERT-Tokenized-Base'].str.len() != 0]
+                # BERT-Large
+                df['BERT-Tokenized-Large'] = df['BERT-Tokenized-Large'].apply(pos_tag)
+                df['BERT-Tokenized-Large'] = df['BERT-Tokenized-Large'].apply(
+                    lambda x: [w for w in x if 'JJ' in w[1] or 'NN' in w[1] or 'VB' in w[1]])
+                df = df[df['BERT-Tokenized-Large'].str.len() != 0]
                 print(SIMP+fblue+bgray+'\n POS Tagged!'+End)
                 
 
@@ -106,6 +119,13 @@ def Preprocess(item: dict):
             elif item[i] == 'StopWords':
                 stop_words = set(stopwords.words('english'))
                 df['Tokenized'] = df['Tokenized'].apply(
+                    lambda x: [word for word in x if word[0].lower() not in stop_words])
+        
+                # BERT-Base
+                df['BERT-Tokenized-Base'] = df['BERT-Tokenized-Base'].apply(
+                    lambda x: [word for word in x if word[0].lower() not in stop_words])
+                # BERT-Large
+                df['BERT-Tokenized-Large'] = df['BERT-Tokenized-Large'].apply(
                     lambda x: [word for word in x if word[0].lower() not in stop_words])
                 print(SIMP+fblue+bgray+'\n StopWords Removal Done!'+End)
                 
@@ -115,18 +135,53 @@ def Preprocess(item: dict):
                 stemmer = SnowballStemmer("english")
                 df['Tokenized'] = df['Tokenized'].apply(
                     lambda x: [(stemmer.stem(word[0]),word[1]) for word in x])
+                
+                # BERT-Base
+                df['BERT-Tokenized-Base'] = df['BERT-Tokenized-Base'].apply(
+                    lambda x: [(stemmer.stem(word[0]),word[1]) for word in x])
+                # BERT-Large
+                df['BERT-Tokenized-Large'] = df['BERT-Tokenized-Large'].apply(
+                    lambda x: [(stemmer.stem(word[0]),word[1]) for word in x])
                 print(SIMP+fblue+bgray+'\n Words Stemmed!'+End)
                 
 
             # Lemmatization
             elif item[i] == 'Lemmatization':
                 wnl = WordNetLemmatizer()
-                df['_Tokenized'] = df['Tokenized'].apply(lambda x: [w + tuple('a') for w in x if 'JJ' in w[1]])
-                df['_Tokenized'] += df['Tokenized'].apply(lambda x: [w + tuple('v') for w in x if 'VB' in w[1]])
-                df['_Tokenized'] += df['Tokenized'].apply(lambda x: [w + tuple('n') for w in x if 'NN' in w[1]])
+                df['_Tokenized'] = df['Tokenized'].apply(
+                    lambda x: [w + tuple('a') for w in x if 'JJ' in w[1]])
+                df['_Tokenized'] += df['Tokenized'].apply(
+                    lambda x: [w + tuple('v') for w in x if 'VB' in w[1]])
+                df['_Tokenized'] += df['Tokenized'].apply(
+                    lambda x: [w + tuple('n') for w in x if 'NN' in w[1]])
                 df['Tokenized'] = df['_Tokenized']
                 df = df.drop(columns=['_Tokenized'])
-                df['Tokenized'] = df['Tokenized'].apply(lambda x: [wnl.lemmatize(word[0], word[2]) for word in x])
+                df['Tokenized'] = df['Tokenized'].apply(
+                    lambda x: [wnl.lemmatize(word[0], word[2]) for word in x])
+                
+                # BERT-Base
+                df['_BERT-Tokenized-Base'] = df['BERT-Tokenized-Base'].apply(
+                    lambda x: [w + tuple('a') for w in x if 'JJ' in w[1]])
+                df['_BERT-Tokenized-Base'] += df['BERT-Tokenized-Base'].apply(
+                    lambda x: [w + tuple('v') for w in x if 'VB' in w[1]])
+                df['_BERT-Tokenized-Base'] += df['BERT-Tokenized-Base'].apply(
+                    lambda x: [w + tuple('n') for w in x if 'NN' in w[1]])
+                df['BERT-Tokenized-Base'] = df['_BERT-Tokenized-Base']
+                df = df.drop(columns=['_BERT-Tokenized-Base'])
+                df['BERT-Tokenized-Base'] = df['BERT-Tokenized-Base'].apply(
+                    lambda x: [wnl.lemmatize(word[0], word[2]) for word in x])
+
+                # BERT-Large
+                df['_BERT-Tokenized-Large'] = df['BERT-Tokenized-Large'].apply(
+                    lambda x: [w + tuple('a') for w in x if 'JJ' in w[1]])
+                df['_BERT-Tokenized-Large'] += df['BERT-Tokenized-Large'].apply(
+                    lambda x: [w + tuple('v') for w in x if 'VB' in w[1]])
+                df['_BERT-Tokenized-Large'] += df['BERT-Tokenized-Large'].apply(
+                    lambda x: [w + tuple('n') for w in x if 'NN' in w[1]])
+                df['BERT-Tokenized-Large'] = df['_BERT-Tokenized-Large']
+                df = df.drop(columns=['_BERT-Tokenized-Large'])
+                df['BERT-Tokenized-Large'] = df['BERT-Tokenized-Large'].apply(
+                    lambda x: [wnl.lemmatize(word[0], word[2]) for word in x])
                 print(SIMP+fblue+bgray+'\n Lemmatization Done!'+End)
                 
             
@@ -145,7 +200,7 @@ def Preprocess(item: dict):
                 df['SegmentID-Large'] = df['BERT-Tokenized-Large'].apply(lambda x: [1]*len(x))
                 df['Token-Tensor-Large'] = df['TokenID-Large'].apply(lambda x: torch.tensor([x]))
                 df['Segment-Tensor-Large'] = df['SegmentID-Large'].apply(lambda x: torch.tensor([x]))
-                print(SIMP+fblue+bgray+'\n Data Prepared For BERT!'+End)
+                print(SIMP+fblue+bgray+'\n Data Prepared For BERT!\n'+End)
             
 
     return df
@@ -168,10 +223,11 @@ def Concat(df: pd.DataFrame, col: str, i: int):
 
 
 def Split(arr: np.array, df: pd.DataFrame, col: str):
+
     l = []
     pos = 0
     for i in range(len(df)):
-        l.append(list(arr[pos:len(df[col].iloc[i])]))
+        l.append(list(arr[pos:len(df[col].iloc[i]) + pos]))
         pos += len(df[col].iloc[i])
     
     return l
@@ -219,12 +275,14 @@ def freqDist(df: pd.DataFrame, cols: list):
     for i in range(len(df)):
         for j in range(len(df[Vectors_Clusters].iloc[i])):
             if df[Vectors_Clusters].iloc[i][j] in fd:
-                if df[Tagged_Sentences].iloc[i][j][0] in fd[df[Vectors_Clusters].iloc[i][j]]:
-                    fd[df[Vectors_Clusters].iloc[i][j]][df[Tagged_Sentences].iloc[i][j][0]] += 1
+                
+                if df[Tagged_Sentences].iloc[i][j] in fd[df[Vectors_Clusters].iloc[i][j]]:
+                    fd[df[Vectors_Clusters].iloc[i][j]][df[Tagged_Sentences].iloc[i][j]] += 1
                 else:
-                    fd[df[Vectors_Clusters].iloc[i][j]][df[Tagged_Sentences].iloc[i][j][0]] = 1
+                    fd[df[Vectors_Clusters].iloc[i][j]][df[Tagged_Sentences].iloc[i][j]] = 1
+
             else:
-                fd[df[Vectors_Clusters].iloc[i][j]] = {df[Tagged_Sentences].iloc[i][j][0] : 1}
+                fd[df[Vectors_Clusters].iloc[i][j]] = {df[Tagged_Sentences].iloc[i][j] : 1}
 
     return fd
 
@@ -249,14 +307,14 @@ def distSpace(df: pd.DataFrame, cols: list):
                     df[Coordinates].iloc[i][j]
                 ])
             else:
-                ds[df[Vectors_Clusters].iloc[i][j]] = [df[IDs].iloc[i][j], df[Coordinates].iloc[i][j]]
+                ds[df[Vectors_Clusters].iloc[i][j]] = [[df[IDs].iloc[i][j], df[Coordinates].iloc[i][j]]]
 
-    with open('centers_clusters.json') as file:
-        cc = json.load(file)
-    cc = cc[Vectors_Clusters]
+    cc = pd.read_csv('centers_clusters.csv')
+    cc[Vectors_Clusters] = cc[Vectors_Clusters].apply(lambda x: eval(x))
+    cc = cc[Vectors_Clusters].tolist()
 
     # CC[0]->Label 0
-    cor = 1 #Coordinate index
+    cor = 1  # Coordinate index
     for label in range(len(cc)):
         for feature in range(len(ds[label])):
             ds[label][feature].append(
@@ -281,7 +339,7 @@ def prepItems(df: pd.DataFrame, cols: list):
     
     for i in range(len(df)):
         for j in range(len(df[IDs].iloc[i])):
-            d[df[IDs].iloc[i][j]] = df[Tagged_Sentences].iloc[i][j][0]
+            d[df[IDs].iloc[i][j]] = df[Tagged_Sentences].iloc[i][j]
 
     return d
 

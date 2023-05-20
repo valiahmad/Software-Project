@@ -1,8 +1,10 @@
 # from preprocessing import Preprocess
 import pandas as pd
 import torch
+from _.Color import *
 from transformers import BertModel
 from gensim.models import Word2Vec
+pd.options.mode.chained_assignment = None
 
 
 
@@ -61,27 +63,30 @@ def wordEmbed(df: pd.DataFrame):
     BERT Model
 
     '''
-    # Load pre-trained model (weights)
+    # Base
     bmodel = BertModel.from_pretrained('bert-base-uncased',output_hidden_states = True)
-
-    # Put the model in "evaluation" mode, meaning feed-forward operation.
     bmodel.eval()
 
+    print(BOLD+forange+bblue+'BERT-Base Word Embedding...'+End)
     df['BERT-Base'] = ''
     for i in range(len(df)):
         df['BERT-Base'].iloc[i] = BERTVectorizer(bmodel, df['Token-Tensor-Base'].iloc[i], df['Segment-Tensor-Base'].iloc[i])
-
+    
     df['BERT-Base'] = df['BERT-Base'].apply(lambda x: [w.numpy() for w in x[1:-1]])
-
+    df['BERT-Tokenized-Base'] = df['BERT-Tokenized-Base'].apply(lambda x: [w for w in x[1:-1]])
     del bmodel
+    # Large
+    lmodel = BertModel.from_pretrained('bert-large-uncased',output_hidden_states = True)
+    lmodel.eval()
 
-    bmodel = BertModel.from_pretrained('bert-large-uncased',output_hidden_states = True)
-    bmodel.eval()
+    print(BOLD+forange+bblue+'BERT-Large Word Embedding...'+End)
     df['BERT-Large'] = ''
     for i in range(len(df)):
-        df['BERT-Large'].iloc[i] = BERTVectorizer(bmodel, df['Token-Tensor-Large'].iloc[i], df['Segment-Tensor-Large'].iloc[i])
+        df['BERT-Large'].iloc[i] = BERTVectorizer(lmodel, df['Token-Tensor-Large'].iloc[i], df['Segment-Tensor-Large'].iloc[i])
+    
     df['BERT-Large'] = df['BERT-Large'].apply(lambda x: [w.numpy() for w in x[1:-1]])
-    del bmodel
+    df['BERT-Tokenized-Large'] = df['BERT-Tokenized-Large'].apply(lambda x: [w for w in x[1:-1]])
+    del lmodel
     #######################################################################################################
 
 
