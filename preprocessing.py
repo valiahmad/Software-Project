@@ -12,6 +12,7 @@ from nltk.corpus import stopwords
 from nltk.stem.snowball import SnowballStemmer
 from nltk.stem import WordNetLemmatizer
 from nltk.corpus import sentiwordnet as swn
+import editdistance
 from parameters import n_sample
 
 
@@ -377,3 +378,21 @@ def Polarity(doc: list):
         return 'positive'
     else:
         return 'negative'
+
+
+
+
+
+
+
+def evalFeature(df: pd.DataFrame, dfPA: pd.DataFrame, cols: str):
+    correct = 0
+    Id = cols[0]
+    tokenized = cols[1]
+    method = cols[2]
+    
+    editdistance.eval()
+
+
+
+    return correct
