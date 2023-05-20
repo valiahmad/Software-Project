@@ -8,14 +8,9 @@ from clustering import Cluster
 from feature_selection import FeatureSelector
 from _.settings import setInit
 print(ITALIC+fwhite+bgreen_yashmi+'\n Loading Done!'+End)
-# procedures = setInit()
+procedures = setInit()
 
-procedures = {1:'Lowercase', 2:'Punctuation', 3:'Digit', 4:'<10letters',
-               5:'Tokenization', 6:'BERT-Tokenization',
-               7:'Spell Checking', 8:'POS Tagging',
-               9:'StopWords', 10:'Stemming', 11:'Lemmatization',
-               12:'BERT-Format'
-              }
+
 
 df = Preprocess(procedures)
 print(ITALIC+fwhite+bgreen_yashmi+'Preprocess Done!'+End)
@@ -24,17 +19,13 @@ df = wordEmbed(df)
 print(ITALIC+fwhite+bgreen_yashmi+'\n wordEmbed Done!'+End)
 
 ##################################################################### Dimensionality Reduction
-# df = pd.concat([dimReduc(df, 'BERT-Base'), df], axis=1)
-from test import test
-df = test(df, 'BERT-Base') #TEST
+df = pd.concat([dimReduc(df, 'BERT-Base'), df], axis=1)
 print(ITALIC+fwhite+bgreen_yashmi+'\n dimReduc BERT-Base Done!'+End)
 
-# df = pd.concat([dimReduc(df, 'BERT-Large'), df], axis=1)
-df = test(df, 'BERT-Large')#TEST
+df = pd.concat([dimReduc(df, 'BERT-Large'), df], axis=1)
 print(ITALIC+fwhite+bgreen_yashmi+'\n dimReduc BERT-Large Done!'+End)
 
-# df = pd.concat([dimReduc(df, 'Word2Vec'), df], axis=1)
-df = test(df, 'Word2Vec')#TEST
+df = pd.concat([dimReduc(df, 'Word2Vec'), df], axis=1)
 print(ITALIC+fwhite+bgreen_yashmi+'\n dimReduc Word2Vec Done!'+End)
 ############################################################################ Clustring
 df['Bb-S-K'] = Split(Cluster(Concat(df, 'SOM_BERT-Base', 0), 'Bb-S-K'), df, 'SOM_BERT-Base')
@@ -65,9 +56,8 @@ df['IDs-BERT-L'] = setID(df, 'BERT-Tokenized-Large')
 print(ITALIC+fwhite+bgreen_yashmi+'\n IDs-BERT-L Done!'+End)
 
 #############################################################
-df.to_excel('./Report/report-1.xlsx', index=False) #TEST
+df.to_excel('./Report/report-1.xlsx', index=False)
 print(ITALIC+fwhite+bgreen_yashmi+'\n report-1 Done!'+End)
-print(df.columns) #TEST
 df = df[['SenID', 'Review', 'Feature', 'Polarity', 'Category', 'Tokenized',
        'BERT-Tokenized-Base', 'BERT-Tokenized-Large',
        'SOM_BERT-Base', 'tSNE_BERT-Base', 'SOM_BERT-Large', 'tSNE_BERT-Large',
@@ -108,11 +98,11 @@ dfPA = pd.DataFrame(columns=['Bb-S-K', 'Bb-t-K', 'Bl-S-K', 'Bl-t-K', 'W-S-K', 'W
 ########################################################################## Sentiment Analysis
 df['Sentiment-Predicted'] = df['Tokenized'].apply(lambda x: Polarity(x))
 print(ITALIC+fwhite+bgreen_yashmi+'\n Sentiment-Predicted Done!'+End)
-############################################################################TEST
+############################################################################
 dfPA.to_excel('./Report/report-PA.xlsx', index=False)
 df.to_excel('./Report/report-2-predicted-sentiment.xlsx', index=False)
 print(ITALIC+fwhite+bgreen_yashmi+'\n report-PA&report-2 Done!'+End)
-############################################################################TEST
+############################################################################
 
 # TODO: Evaluation
 correctExtractedAspects = 0
@@ -120,5 +110,3 @@ totalCorrectExtractedAspects = 0
 totalTrueAspects = 0
 
 # TODO: GUI
-
-# TODO: TEST...
