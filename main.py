@@ -1,7 +1,7 @@
 from _.Color import *
 print(ITALIC+fgray+borange+' Loading Libraries...'+End)
 import pandas as pd
-from preprocessing import Preprocess, Concat, Split, setID, Polarity, evalFeature
+from preprocessing import Preprocess, Concat, Split, Polarity, evalFeature
 from word_embedding import wordEmbed
 from dimensionality_reduction import dimReduc
 from clustering import Cluster
@@ -13,6 +13,7 @@ procedures = setInit()
 
 
 df = Preprocess(procedures)
+df.to_excel('./Report/report-1-preprocessing.xlsx', index=False)
 print(ITALIC+fwhite+bgreen_yashmi+'Preprocess Done!'+End)
 
 df = wordEmbed(df)
@@ -26,7 +27,11 @@ df = pd.concat([dimReduc(df, 'BERT-Large'), df], axis=1)
 print(ITALIC+fwhite+bgreen_yashmi+'\n dimReduc BERT-Large Done!'+End)
 
 df = pd.concat([dimReduc(df, 'Word2Vec'), df], axis=1)
+df[['IDs-NBERT', 'IDs-BERT-B', 'IDs-BERT-L', 'SOM_BERT-Base', 
+    'tSNE_BERT-Base', 'SOM_BERT-Large', 'tSNE_BERT-Large', 
+    'SOM_Word2Vec', 'tSNE_Word2Vec',]].to_excel('./Report/report-1-dimensionality-reduction.xlsx', index=False)
 print(ITALIC+fwhite+bgreen_yashmi+'\n dimReduc Word2Vec Done!'+End)
+
 ############################################################################ Clustring
 df['Bb-S-K'] = Split(Cluster(Concat(df, 'SOM_BERT-Base', 0), 'Bb-S-K'), df, 'SOM_BERT-Base')
 print(ITALIC+fwhite+bgreen_yashmi+'\n Clustring Bb-S-K Done!'+End)
@@ -45,26 +50,18 @@ print(ITALIC+fwhite+bgreen_yashmi+'\n Clustring W-S-K Done!'+End)
 
 df['W-t-K'] = Split(Cluster(Concat(df, 'tSNE_Word2Vec', 0), 'W-t-K'), df, 'tSNE_Word2Vec')
 print(ITALIC+fwhite+bgreen_yashmi+'\n Clustring W-t-K Done!'+End)
-############################################################ Set ID for each token
-df['IDs-NBERT'] = setID(df, 'Tokenized')
-print(ITALIC+fwhite+bgreen_yashmi+'\n IDs-NBERT Done!'+End)
-
-df['IDs-BERT-B'] = setID(df, 'BERT-Tokenized-Base')
-print(ITALIC+fwhite+bgreen_yashmi+'\n IDs-BERT-B Done!'+End)
-
-df['IDs-BERT-L'] = setID(df, 'BERT-Tokenized-Large')
-print(ITALIC+fwhite+bgreen_yashmi+'\n IDs-BERT-L Done!'+End)
 
 #############################################################
 df.to_excel('./Report/report-1.xlsx', index=False)
 print(ITALIC+fwhite+bgreen_yashmi+'\n report-1 Done!'+End)
 df = df[['SenID', 'Review', 'Feature', 'Polarity', 'Category', 'Tokenized',
-       'BERT-Tokenized-Base', 'BERT-Tokenized-Large',
+       'BERT-Tokenized-Base', 'BERT-Tokenized-Large', 'Original-Tokenized',
+       'Original-BERT-Tokenized-Base', 'Original-BERT-Tokenized-Large',
        'SOM_BERT-Base', 'tSNE_BERT-Base', 'SOM_BERT-Large', 'tSNE_BERT-Large',
        'SOM_Word2Vec', 'tSNE_Word2Vec', 'Bb-S-K', 'Bb-t-K', 'Bl-S-K', 'Bl-t-K',
-       'W-S-K', 'W-t-K', 'IDs-NBERT', 'IDs-BERT-B', 'IDs-BERT-L'
+       'W-S-K', 'W-t-K', 'IDs-NBERT', 'IDs-BERT-B', 'IDs-BERT-L','FeatureID', 
+       'FeatureID-BERT-Base', 'FeatureID-BERT-Large'
        ]]
-#############################################################
 
 ####################################################################### Feature Extraction
 BbSK = ['BERT-Tokenized-Base', 'IDs-BERT-B', 'SOM_BERT-Base', 'Bb-S-K']
@@ -95,20 +92,26 @@ dfPA = pd.DataFrame(columns=['Bb-S-K', 'Bb-t-K', 'Bl-S-K', 'Bl-t-K', 'W-S-K', 'W
                     data=[[Prominent_Aspects_BbSK, Prominent_Aspects_BbtK, Prominent_Aspects_BlSK, 
                            Prominent_Aspects_BltK, Prominent_Aspects_WSK, Prominent_Aspects_WtK]]
                     )
+
 ########################################################################## Sentiment Analysis
 df['Sentiment-Predicted'] = df['Tokenized'].apply(lambda x: Polarity(x))
 print(ITALIC+fwhite+bgreen_yashmi+'\n Sentiment-Predicted Done!'+End)
+
 ############################################################################
 dfPA.to_excel('./Report/report-PA.xlsx', index=False)
 df.to_excel('./Report/report-2-predicted-sentiment.xlsx', index=False)
 print(ITALIC+fwhite+bgreen_yashmi+'\n report-PA&report-2 Done!'+End)
-df = df[['SenID', 'Review', 'Feature', 'Polarity', 'Category', 'Tokenized',
-       'BERT-Tokenized-Base', 'BERT-Tokenized-Large', 'Bb-S-K', 'Bb-t-K', 'Bl-S-K', 'Bl-t-K',
-       'W-S-K', 'W-t-K', 'IDs-NBERT', 'IDs-BERT-B', 'IDs-BERT-L', 'Sentiment-Predicted'
+
+df = df[['SenID', 'Review', 'Feature', 'Polarity', 'Category', 'Tokenized', 'Original-Tokenized',
+         'Original-BERT-Tokenized-Base', 'Original-BERT-Tokenized-Large', 'BERT-Tokenized-Base', 
+         'BERT-Tokenized-Large', 'Bb-S-K', 'Bb-t-K', 'Bl-S-K', 'Bl-t-K', 'W-S-K', 'W-t-K', 
+         'IDs-NBERT', 'IDs-BERT-B', 'IDs-BERT-L', 'Sentiment-Predicted', 'FeatureID', 
+         'FeatureID-BERT-Base', 'FeatureID-BERT-Large'
        ]]
+
 ############################################################################
 
-# TODO: Evaluation
+# Evaluation
 from sklearn.metrics import classification_report
 df['trueLabel'] = pd.Categorical(df['Polarity']).codes
 df['predLabel'] = pd.Categorical(df['Sentiment-Predicted']).codes
@@ -136,17 +139,17 @@ dfevR.to_excel('./Report/evaluation-sentiment-analysis-Restaurant.xlsx', index=F
 totalTrueAspects = len(df['Feature'])                          # denominator -> recall
 
 correctExtractedAspects_BbSK = evalFeature(df, dfPA, 
-                                           ['IDs-BERT-B', 'BERT-Tokenized-Base', 'Bb-S-K'])   # numerator
+                                           ['FeatureID-BERT-Base', 'Bb-S-K'])   # numerator
 correctExtractedAspects_BbtK = evalFeature(df, dfPA, 
-                                           ['IDs-BERT-B', 'BERT-Tokenized-Base', 'Bb-t-K'])
+                                           ['FeatureID-BERT-Base', 'Bb-t-K'])
 correctExtractedAspects_BlSK = evalFeature(df, dfPA, 
-                                           ['IDs-BERT-L', 'BERT-Tokenized-Large', 'Bl-S-K'])
+                                           ['FeatureID-BERT-Large', 'Bl-S-K'])
 correctExtractedAspects_BltK = evalFeature(df, dfPA, 
-                                           ['IDs-BERT-L', 'BERT-Tokenized-Large', 'Bl-t-K'])
+                                           ['FeatureID-BERT-Large', 'Bl-t-K'])
 correctExtractedAspects_WSK = evalFeature(df, dfPA, 
-                                           ['IDs-NBERT', 'Tokenized', 'W-S-K'])
+                                           ['FeatureID', 'W-S-K'])
 correctExtractedAspects_WtK = evalFeature(df, dfPA, 
-                                           ['IDs-NBERT', 'Tokenized', 'W-t-K'])
+                                           ['FeatureID', 'W-t-K'])
 
 totalCorrectExtractedAspects_BbSk = len(df['Bb-S-K'])          # denominator -> precision
 totalCorrectExtractedAspects_Bbtk = len(df['Bb-t-K'])
@@ -185,5 +188,10 @@ metricsFeature['F1-Score'] = {
     'W-t-K': 2 * metricsFeature['Precision']['W-t-K'] * metricsFeature['Recall']['W-t-K'] / 
                 (metricsFeature['Precision']['W-t-K'] + metricsFeature['Recall']['W-t-K'])
 }
+dfevf = pd.DataFrame(metricsFeature)
+dfevf = dfevf.T
+dfevf.to_excel('./Report/featureextraction-evaluation.xlsx', index=False)
+print(dfevf)
 
+###############################################################################
 # TODO: GUI

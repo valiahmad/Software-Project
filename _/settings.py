@@ -1,14 +1,14 @@
 from _.Color import *
 def setInit():
     setList = {'Lowercase':0, 'Punctuation':0, 'Digit':0, '<10letters':0,
-               'Tokenization':0, 'BERT-Tokenization':0,
-               'Spell Checking':0, 'POS Tagging':0,
+               'Tokenization':0, 'BERT-Tokenization':0, 'Set IDs':0,
+               'Feature ID':0, 'Spell Checking':0, 'POS Tagging':0,
                'StopWords':0, 'Stemming':0, 'Lemmatization':0,
                'BERT-Format':0
                }
     option = ['Lowercase', 'Punctuation', 'Digit', '<10letters',
-              'Tokenization', 'BERT-Tokenization',
-              'Spell Checking', 'POS Tagging', 'StopWords',
+              'Tokenization', 'BERT-Tokenization', 'Set IDs',
+              'Feature ID', 'Spell Checking', 'POS Tagging', 'StopWords',
               'Stemming', 'Lemmatization', 'BERT-Format'
               ]
     

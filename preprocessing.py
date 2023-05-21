@@ -1,5 +1,4 @@
 from _.Color import *
-print(BOLD+fgray+bwhite+' Preprocessing'+End)
 import string
 import torch
 import pandas as pd
@@ -39,7 +38,7 @@ def Preprocess(item: dict):
         df = df.sample(n=n_sample)
     print(df.head())
     
-  
+    
 
     for i in range(1, len(item)+1):
         if i in item:
@@ -72,6 +71,7 @@ def Preprocess(item: dict):
             # Tokenized reviews text
             elif item[i] == 'Tokenization':
                 df['Tokenized'] = df['Review'].apply(word_tokenize)
+                df['Original-Tokenized'] = df['Tokenized'].copy()
                 print(SIMP+fblue+bgray+'\n Tokenization Done!'+End)
                 
             
@@ -81,12 +81,50 @@ def Preprocess(item: dict):
                 Btokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
                 # padding='max_length',max_length=64,return_tensors="pt",return_attention_mask=True
                 df['BERT-Tokenized-Base'] = df['Review'].apply(Btokenizer.tokenize)
+                df['Original-BERT-Tokenized-Base'] = df['BERT-Tokenized-Base'].copy()
                 
                 # Large
                 Ltokenizer = BertTokenizer.from_pretrained('bert-large-uncased')
                 df['BERT-Tokenized-Large'] = df['Review'].apply(Ltokenizer.tokenize)
+                df['Original-BERT-Tokenized-Large'] = df['BERT-Tokenized-Large'].copy()
                 print(SIMP+fblue+bgray+'\n BERT-Tokenization Done!'+End)
                 
+
+            # Set IDs for tokens
+            elif item[i] == 'Set IDs':
+                df['IDs-NBERT'] = setID(df, 'Tokenized')
+                print(SIMP+fblue+bgray+'\n IDs-NBERT Done!'+End)
+
+                df['IDs-BERT-B'] = setID(df, 'BERT-Tokenized-Base')
+                print(SIMP+fblue+bgray+'\n IDs-BERT-B Done!'+End)
+
+                df['IDs-BERT-L'] = setID(df, 'BERT-Tokenized-Large')
+                print(SIMP+fblue+bgray+'\n IDs-BERT-L Done!'+End)
+            
+
+            # Set ID for features
+            elif item[i] == 'Feature ID':
+                df['FeatureID'] = df[['Tokenized','Feature']].apply(
+                    lambda x: x.Tokenized.index(x.Feature) if x.Feature in x.Tokenized else -1, axis=1)
+                df = df[df['FeatureID'] != -1] # TODO should be fixed
+                df['FeatureID'] = df[['FeatureID', 'IDs-NBERT']].apply(
+                    lambda x: x['IDs-NBERT'][x['FeatureID']], axis=1)
+                print(SIMP+fblue+bgray+'\n FeatureID Done!'+End)
+                
+                # BERT-Base
+                df['FeatureID-BERT-Base'] = df[['BERT-Tokenized-Base','Feature']].apply(
+                    lambda x: x['BERT-Tokenized-Base'].index(x.Feature) if x.Feature in x['BERT-Tokenized-Base'] else -1, axis=1)
+                df = df[df['FeatureID-BERT-Base'] != -1] # TODO should be fixed
+                df['FeatureID-BERT-Base'] = df[['FeatureID-BERT-Base', 'IDs-BERT-B']].apply(
+                    lambda x: x['IDs-BERT-B'][x['FeatureID-BERT-Base']], axis=1)
+                print(SIMP+fblue+bgray+'\n FeatureID-BERT-Base Done!'+End)
+                # BERT-Large
+                df['FeatureID-BERT-Large'] = df[['BERT-Tokenized-Large','Feature']].apply(
+                    lambda x: x['BERT-Tokenized-Large'].index(x.Feature) if x.Feature in x['BERT-Tokenized-Large'] else -1, axis=1)
+                df = df[df['FeatureID-BERT-Large'] != -1] # TODO should be fixed
+                df['FeatureID-BERT-Large'] = df[['FeatureID-BERT-Large', 'IDs-BERT-L']].apply(
+                    lambda x: x['IDs-BERT-L'][x['FeatureID-BERT-Large']], axis=1)
+                print(SIMP+fblue+bgray+'\n FeatureID-BERT-Large Done!'+End)
 
             # Correcting word spells
             elif item[i] == 'Spell Checking':
@@ -387,12 +425,11 @@ def Polarity(doc: list):
 
 def evalFeature(df: pd.DataFrame, dfPA: pd.DataFrame, cols: str):
     correct = 0
-    Id = cols[0]
-    tokenized = cols[1]
-    method = cols[2]
+    FID = cols[0]
+    method = cols[1]
     
-    editdistance.eval()
-
-
+    for i in range(len(dfPA)):
+        if dfPA[method][i][1] in df[FID].values:
+            correct += 1
 
     return correct
