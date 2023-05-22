@@ -194,4 +194,19 @@ dfevf.to_excel('./Report/featureextraction-evaluation.xlsx', index=False)
 print(dfevf)
 
 ###############################################################################
-# TODO: GUI
+'''
+save models
+import pickle
+from transformers import BertModel
+from gensim.models import Word2Vec
+kmeans = pickle.load(open('./Models/kmeans-'+ col +'.pickle', "rb"))
+som = pickle.load(open('./Models/SOM-'+ col +'.pickle', "rb"))
+tSNE = pickle.load(open('./Models/tSNE-'+ col +'.pickle', "rb"))
+bertb = BertModel.from_pretrained('./Models/BERTB/',output_hidden_states = True)
+bertl = BertModel.from_pretrained('./Models/BERTL/',output_hidden_states = True)
+wv = Word2Vec.load('./Models/w2v.model')
+'''
+# from datetime import datetime
+# now = datetime.now()
+# dt_string = now.strftime("%b-%d-%Y-%H-%M-%S") # for the name of folder (log)
+# TODO HTLM to SVG: for saving the result that produced by spacy visualizer.

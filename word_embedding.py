@@ -74,11 +74,13 @@ def wordEmbed(df: pd.DataFrame):
     
     df['BERT-Base'] = df['BERT-Base'].apply(lambda x: [w.numpy() for w in x[1:-1]])
     df['BERT-Tokenized-Base'] = df['BERT-Tokenized-Base'].apply(lambda x: [w for w in x[1:-1]])
+
+    bmodel.save_pretrained('./Models/BERTB/')
     del bmodel
     # Large
     lmodel = BertModel.from_pretrained('bert-large-uncased',output_hidden_states = True)
     lmodel.eval()
-
+    
     print(BOLD+forange+bblue+'BERT-Large Word Embedding...'+End)
     df['BERT-Large'] = ''
     for i in range(len(df)):
@@ -86,6 +88,8 @@ def wordEmbed(df: pd.DataFrame):
     
     df['BERT-Large'] = df['BERT-Large'].apply(lambda x: [w.numpy() for w in x[1:-1]])
     df['BERT-Tokenized-Large'] = df['BERT-Tokenized-Large'].apply(lambda x: [w for w in x[1:-1]])
+
+    lmodel.save_pretrained('./Models/BERTL/')
     del lmodel
     #######################################################################################################
 
@@ -104,11 +108,11 @@ def wordEmbed(df: pd.DataFrame):
     wvmodel.build_vocab(df['Tokenized'])
     wvmodel.train(df['Tokenized'], total_examples=wvmodel.corpus_count, epochs=wvmodel.epochs)
 
-    # Save the trained model
-    # model.save("word_embedded.model")
-
+    
     # Keep Vectors
     word_vectors = wvmodel.wv
+    # Save Model
+    wvmodel.save('./Models/w2v.model')
     # Delete Model
     del wvmodel
 

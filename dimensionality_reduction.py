@@ -1,4 +1,5 @@
 import pandas as pd
+import pickle
 from _.Color import *
 from susi import SOMClustering
 from sklearn.manifold import TSNE
@@ -19,6 +20,8 @@ def dimReduc(df: pd.DataFrame, col: str):
 
     df['SOM_' + col] = df[col].apply(lambda x: som.fit_transform(x))
     print(ITALIC+forange+bblue+'SOM Reduction of '+col+' Done!'+End)
+    
+    pickle.dump(som, open('./Models/SOM-'+ col +'.pickle', "wb"))
 
 
     '''
@@ -30,5 +33,7 @@ def dimReduc(df: pd.DataFrame, col: str):
 
     df['tSNE_' + col] = df[col].apply(lambda x: tSNE.fit_transform(x))
     print(ITALIC+forange+bblue+'t-SNE Reduction of '+col+' Done!'+End)
+    
+    pickle.dump(tSNE, open('./Models/tSNE-'+ col +'.pickle', "wb"))
 
     return df
