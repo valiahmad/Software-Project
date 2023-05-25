@@ -12,32 +12,11 @@ from nltk.stem.snowball import SnowballStemmer
 from nltk.stem import WordNetLemmatizer
 from nltk.corpus import sentiwordnet as swn
 import editdistance
-from parameters import n_sample
 
 
 
 
-def Preprocess(item: dict):
-
-    # Loading Data
-    path_Laptops = './Datasets/Laptops.xlsx'
-    path_Rest = './Datasets/Restaurant.xlsx'
-    dfL = pd.read_excel(path_Laptops)
-    dfR = pd.read_excel(path_Rest)
-    dfL['Category'] = 'Laptops'
-    dfR['Category'] = 'Restaurant'
-    df = pd.concat([dfL, dfR], ignore_index=True)
-    df = df.rename(columns=
-                    {'id':'SenID',
-                    'Sentence':'Review',
-                    'Aspect Term':'Feature',
-                    'polarity':'Polarity'}
-                )
-    df = df.drop(columns=['from', 'to'])
-    if n_sample:
-        df = df.sample(n=n_sample)
-    print(df.head())
-    
+def Preprocess(df: pd.DataFrame, item: dict):
     
 
     for i in range(1, len(item)+1):
@@ -433,3 +412,68 @@ def evalFeature(df: pd.DataFrame, dfPA: pd.DataFrame, cols: str):
             correct += 1
 
     return correct
+
+
+
+
+
+
+
+def runExample(review: str, method: str):
+    df = pd.DataFrame()
+    df['Review'] = [review]
+    df = Preprocess(df, {1:'Lowercase', 2:'Punctuation', 3:'Digit', 
+                    4:'Tokenization', 5:'BERT-Tokenization', 6:'Spell Checking', 
+                    7:'POS Tagging', 8:'StopWords', 9:'Stemming', 10:'Lemmatization'
+                    })
+
+
+    
+    dfPA = pd.read_excel('./Report/report-PA.xlsx')
+    dfPA = dfPA[method]
+    Tokenized = df['Tokenized']
+    
+    feature = []
+
+    for w in Tokenized:
+        for f in dfPA:
+            if editdistance.eval(f[0], w) <= 1:
+                feature.append(w)
+    
+
+    Original_Tokenized = df['Original-Tokenized']
+    ed = []
+    for i in feature:
+         ed.append([editdistance(i, j) for j in Original_Tokenized])
+    
+
+    pos = []
+    for d in ed:
+        pos.append(d.index(min(d)))
+
+
+
+    word_start = [len(" ".join(Original_Tokenized[:p])) + 1 for p in pos]
+    word_end = [word_start + len(Original_Tokenized[p]) for p in pos]
+    
+
+
+    from spacy import displacy
+    review = review + '  ' + Polarity(Tokenized).capitalize() + ' '
+    ex = [{"text": review, "title": None}]
+    ex[0]['ents'] = [{"start": s, "end": e, "label": "Feature"} for s, e in zip(word_start, word_end)]
+    ex[0]['ents'].append({"start": len(review)-9, "end": len(review), "label": "Polarity"})
+    options = {"ents": ["Feature", 'Polarity'],
+            "colors": {"Feature": "yellow"}}
+    if 'Positive' in review[-10:]:
+        options['colors']['Polarity'] = 'green'
+    elif 'Negative' in review[-10:]:
+        options['colors']['Polarity'] = 'red'
+    elif 'Neutral' in review[-10:]:
+        options['colors']['Polarity'] = 'white'
+    displacy.render(ex, style="ent", manual=True, options=options)
+
+    # import spacy
+    # nlp = spacy.load('en_core_web_sm')
+    # doc = nlp('Bill Gates is the CEO of Microsoft.')
+    # displacy.serve(doc, style='ent')

@@ -7,12 +7,35 @@ from dimensionality_reduction import dimReduc
 from clustering import Cluster
 from feature_selection import FeatureSelector
 from _.settings import setInit
+from parameters import n_sample
 print(ITALIC+fwhite+bgreen_yashmi+'\n Loading Done!'+End)
 procedures = setInit()
 
 
 
-df = Preprocess(procedures)
+# Loading Data
+path_Laptops = './Datasets/Laptops.xlsx'
+path_Rest = './Datasets/Restaurant.xlsx'
+dfL = pd.read_excel(path_Laptops)
+dfR = pd.read_excel(path_Rest)
+dfL['Category'] = 'Laptops'
+dfR['Category'] = 'Restaurant'
+df = pd.concat([dfL, dfR], ignore_index=True)
+df = df.rename(columns=
+                {'id':'SenID',
+                'Sentence':'Review',
+                'Aspect Term':'Feature',
+                'polarity':'Polarity'}
+            )
+df = df.drop(columns=['from', 'to'])
+if n_sample:
+    df = df.sample(n=n_sample)
+print(df.head())
+    
+
+
+
+df = Preprocess(df, procedures)
 df.to_excel('./Report/report-1-preprocessing.xlsx', index=False)
 print(ITALIC+fwhite+bgreen_yashmi+'Preprocess Done!'+End)
 

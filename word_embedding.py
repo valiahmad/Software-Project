@@ -1,9 +1,10 @@
-# from preprocessing import Preprocess
 import pandas as pd
 import torch
 from _.Color import *
 from transformers import BertModel
 from gensim.models import Word2Vec
+from transformers import logging
+logging.set_verbosity_error()
 pd.options.mode.chained_assignment = None
 
 
@@ -107,16 +108,20 @@ def wordEmbed(df: pd.DataFrame):
     # Train the model
     wvmodel.build_vocab(df['Tokenized'])
     wvmodel.train(df['Tokenized'], total_examples=wvmodel.corpus_count, epochs=wvmodel.epochs)
-
+  
     
     # Keep Vectors
     word_vectors = wvmodel.wv
+    # to set min_count=100
+    # df['Word2Vec'] = df['Tokenized'].apply(lambda x: [word_vectors[w] for w in x if w in word_vectors])
+    # df['Tokenized'] = df['Tokenized'].apply(lambda x: [w for w in x if w in word_vectors])
+    # to set min_count=1
+    df['Word2Vec'] = df['Tokenized'].apply(lambda x: [word_vectors[w] for w in x])
+
     # Save Model
     wvmodel.save('./Models/w2v.model')
     # Delete Model
     del wvmodel
-
-    df['Word2Vec'] = df['Tokenized'].apply(lambda x: [word_vectors[w] for w in x])
     ##############################################################################
 
     return df
