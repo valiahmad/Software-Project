@@ -3,7 +3,7 @@ import pandas as pd
 from sklearn.cluster import KMeans
 import pickle
 from parameters import Labels
-
+from parameters import date_string
 
 
 def Cluster(arr: np.array, col: str):
@@ -16,7 +16,7 @@ def Cluster(arr: np.array, col: str):
     df[col] = kmeans.cluster_centers_.tolist()
     df.to_csv('centers_clusters.csv', index=False)
 
-    pickle.dump(kmeans, open('./Models/kmeans-'+ col +'.pickle', "wb"))
+    pickle.dump(kmeans, open('./' + date_string + '/Models/kmeans-'+ col +'.pickle', "wb"))
 
 
     return kmeans.predict(arr)

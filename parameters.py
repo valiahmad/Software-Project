@@ -1,3 +1,9 @@
+from datetime import datetime
+now = datetime.now()
+date_string = now.strftime("%b-%d-%Y-%H-%M-%S") # for the name of folder (log)
+
+
+
 Labels = 150
 Threshold = 2
 Top_Items = 10

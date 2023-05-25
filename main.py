@@ -1,5 +1,7 @@
 from _.Color import *
 print(ITALIC+fgray+borange+' Loading Libraries...'+End)
+import os
+from parameters import n_sample, date_string
 import pandas as pd
 from preprocessing import Preprocess, Concat, Split, Polarity, evalFeature
 from word_embedding import wordEmbed
@@ -7,10 +9,9 @@ from dimensionality_reduction import dimReduc
 from clustering import Cluster
 from feature_selection import FeatureSelector
 from _.settings import setInit
-from parameters import n_sample
 print(ITALIC+fwhite+bgreen_yashmi+'\n Loading Done!'+End)
 procedures = setInit()
-
+os.makedirs('./' + date_string)
 
 
 # Loading Data
@@ -36,7 +37,7 @@ print(df.head())
 
 
 df = Preprocess(df, procedures)
-df.to_excel('./Report/report-1-preprocessing.xlsx', index=False)
+df.to_excel('./' + date_string + '/Report/report-1-preprocessing.xlsx', index=False)
 print(ITALIC+fwhite+bgreen_yashmi+'Preprocess Done!'+End)
 
 df = wordEmbed(df)
@@ -50,10 +51,12 @@ df = pd.concat([dimReduc(df, 'BERT-Large'), df], axis=1)
 print(ITALIC+fwhite+bgreen_yashmi+'\n dimReduc BERT-Large Done!'+End)
 
 df = pd.concat([dimReduc(df, 'Word2Vec'), df], axis=1)
+print(ITALIC+fwhite+bgreen_yashmi+'\n dimReduc Word2Vec Done!'+End)
+
 df[['IDs-NBERT', 'IDs-BERT-B', 'IDs-BERT-L', 'SOM_BERT-Base', 
     'tSNE_BERT-Base', 'SOM_BERT-Large', 'tSNE_BERT-Large', 
-    'SOM_Word2Vec', 'tSNE_Word2Vec',]].to_excel('./Report/report-1-dimensionality-reduction.xlsx', index=False)
-print(ITALIC+fwhite+bgreen_yashmi+'\n dimReduc Word2Vec Done!'+End)
+    'SOM_Word2Vec', 'tSNE_Word2Vec',]].to_excel(
+        './' + date_string + '/Report/report-1-dimensionality-reduction.xlsx', index=False)
 
 ############################################################################ Clustring
 df['Bb-S-K'] = Split(Cluster(Concat(df, 'SOM_BERT-Base', 0), 'Bb-S-K'), df, 'SOM_BERT-Base')
@@ -75,7 +78,7 @@ df['W-t-K'] = Split(Cluster(Concat(df, 'tSNE_Word2Vec', 0), 'W-t-K'), df, 'tSNE_
 print(ITALIC+fwhite+bgreen_yashmi+'\n Clustring W-t-K Done!'+End)
 
 #############################################################
-df.to_excel('./Report/report-1.xlsx', index=False)
+df.to_excel('./' + date_string + '/Report/report-1.xlsx', index=False)
 print(ITALIC+fwhite+bgreen_yashmi+'\n report-1 Done!'+End)
 df = df[['SenID', 'Review', 'Feature', 'Polarity', 'Category', 'Tokenized',
        'BERT-Tokenized-Base', 'BERT-Tokenized-Large', 'Original-Tokenized',
@@ -121,8 +124,8 @@ df['Sentiment-Predicted'] = df['Tokenized'].apply(lambda x: Polarity(x))
 print(ITALIC+fwhite+bgreen_yashmi+'\n Sentiment-Predicted Done!'+End)
 
 ############################################################################
-dfPA.to_excel('./Report/report-PA.xlsx', index=False)
-df.to_excel('./Report/report-2-predicted-sentiment.xlsx', index=False)
+dfPA.to_excel('./' + date_string + '/Report/report-PA.xlsx', index=False)
+df.to_excel('./' + date_string + '/Report/report-2-predicted-sentiment.xlsx', index=False)
 print(ITALIC+fwhite+bgreen_yashmi+'\n report-PA&report-2 Done!'+End)
 
 df = df[['SenID', 'Review', 'Feature', 'Polarity', 'Category', 'Tokenized', 'Original-Tokenized',
@@ -147,7 +150,7 @@ dfevL = pd.DataFrame(classification_report(df.loc[df['Category'] == 'Laptops', '
                                           df.loc[df['Category'] == 'Laptops', 'predLabel'], 
                                           output_dict=True, 
                                           zero_division=1))
-dfevL.to_excel('./Report/evaluation-sentiment-analysis-Laptops.xlsx', index=False)
+dfevL.to_excel('./' + date_string + '/Report/evaluation-sentiment-analysis-Laptops.xlsx', index=False)
 # Restaurant
 print(SIMP+forange+bblue+'\nFor Restaurant'+End)
 print(classification_report(df.loc[df['Category'] == 'Restaurant', 'trueLabel'], 
@@ -157,7 +160,7 @@ dfevR = pd.DataFrame(classification_report(df.loc[df['Category'] == 'Restaurant'
                                           df.loc[df['Category'] == 'Restaurant', 'predLabel'], 
                                           output_dict=True, 
                                           zero_division=1))
-dfevR.to_excel('./Report/evaluation-sentiment-analysis-Restaurant.xlsx', index=False)
+dfevR.to_excel('./' + date_string + '/Report/evaluation-sentiment-analysis-Restaurant.xlsx', index=False)
 
 totalTrueAspects = len(df['Feature'])                          # denominator -> recall
 
@@ -213,7 +216,7 @@ metricsFeature['F1-Score'] = {
 }
 dfevf = pd.DataFrame(metricsFeature)
 dfevf = dfevf.T
-dfevf.to_excel('./Report/featureextraction-evaluation.xlsx', index=False)
+dfevf.to_excel('./' + date_string + '/Report/featureextraction-evaluation.xlsx', index=False)
 print(dfevf)
 
 ###############################################################################
@@ -229,7 +232,5 @@ bertb = BertModel.from_pretrained('./Models/BERTB/',output_hidden_states = True)
 bertl = BertModel.from_pretrained('./Models/BERTL/',output_hidden_states = True)
 wv = Word2Vec.load('./Models/w2v.model')
 '''
-# from datetime import datetime
-# now = datetime.now()
-# dt_string = now.strftime("%b-%d-%Y-%H-%M-%S") # for the name of folder (log)
+
 # TODO HTLM to SVG: for saving the result that produced by spacy visualizer.

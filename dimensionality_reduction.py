@@ -3,7 +3,7 @@ import pickle
 from _.Color import *
 from susi import SOMClustering
 from sklearn.manifold import TSNE
-
+from parameters import date_string
 
 
 
@@ -21,7 +21,7 @@ def dimReduc(df: pd.DataFrame, col: str):
     df['SOM_' + col] = df[col].apply(lambda x: som.fit_transform(x))
     print(ITALIC+forange+bblue+'SOM Reduction of '+col+' Done!'+End)
     
-    pickle.dump(som, open('./Models/SOM-'+ col +'.pickle', "wb"))
+    pickle.dump(som, open('./' + date_string + '/Models/SOM-'+ col +'.pickle', "wb"))
 
 
     '''
@@ -34,6 +34,6 @@ def dimReduc(df: pd.DataFrame, col: str):
     df['tSNE_' + col] = df[col].apply(lambda x: tSNE.fit_transform(x))
     print(ITALIC+forange+bblue+'t-SNE Reduction of '+col+' Done!'+End)
     
-    pickle.dump(tSNE, open('./Models/tSNE-'+ col +'.pickle', "wb"))
+    pickle.dump(tSNE, open('./' + date_string + '/Models/tSNE-'+ col +'.pickle', "wb"))
 
     return df

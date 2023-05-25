@@ -3,6 +3,7 @@ import torch
 from _.Color import *
 from transformers import BertModel
 from gensim.models import Word2Vec
+from parameters import date_string
 from transformers import logging
 logging.set_verbosity_error()
 pd.options.mode.chained_assignment = None
@@ -76,8 +77,12 @@ def wordEmbed(df: pd.DataFrame):
     df['BERT-Base'] = df['BERT-Base'].apply(lambda x: [w.numpy() for w in x[1:-1]])
     df['BERT-Tokenized-Base'] = df['BERT-Tokenized-Base'].apply(lambda x: [w for w in x[1:-1]])
 
-    bmodel.save_pretrained('./Models/BERTB/')
+    bmodel.save_pretrained('./' + date_string + '/Models/BERTB/')
     del bmodel
+
+
+
+
     # Large
     lmodel = BertModel.from_pretrained('bert-large-uncased',output_hidden_states = True)
     lmodel.eval()
@@ -90,7 +95,7 @@ def wordEmbed(df: pd.DataFrame):
     df['BERT-Large'] = df['BERT-Large'].apply(lambda x: [w.numpy() for w in x[1:-1]])
     df['BERT-Tokenized-Large'] = df['BERT-Tokenized-Large'].apply(lambda x: [w for w in x[1:-1]])
 
-    lmodel.save_pretrained('./Models/BERTL/')
+    lmodel.save_pretrained('./' + date_string + '/Models/BERTL/')
     del lmodel
     #######################################################################################################
 
@@ -119,7 +124,7 @@ def wordEmbed(df: pd.DataFrame):
     df['Word2Vec'] = df['Tokenized'].apply(lambda x: [word_vectors[w] for w in x])
 
     # Save Model
-    wvmodel.save('./Models/w2v.model')
+    wvmodel.save('./' + date_string + '/Models/w2v.model')
     # Delete Model
     del wvmodel
     ##############################################################################
