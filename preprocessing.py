@@ -12,6 +12,7 @@ from nltk.stem.snowball import SnowballStemmer
 from nltk.stem import WordNetLemmatizer
 from nltk.corpus import sentiwordnet as swn
 import editdistance
+from IPython.display import clear_output
 
 
 
@@ -371,7 +372,7 @@ def Polarity(doc: list):
 
     pos = 0
     neg = 0
-    rate = .013
+    rate = .005
     count = 0
     
     for word in doc:
@@ -420,31 +421,34 @@ def evalFeature(df: pd.DataFrame, dfPA: pd.DataFrame, cols: str):
 
 
 def runExample(review: str, method: str):
+    
     df = pd.DataFrame()
     df['Review'] = [review]
     df = Preprocess(df, {1:'Lowercase', 2:'Punctuation', 3:'Digit', 
                     4:'Tokenization', 5:'BERT-Tokenization', 6:'Spell Checking', 
                     7:'POS Tagging', 8:'StopWords', 9:'Stemming', 10:'Lemmatization'
                     })
-
+    clear_output(wait=True)
 
     
-    dfPA = pd.read_excel('./Report/report-PA.xlsx')
-    dfPA = dfPA[method]
+    dfPA = pd.read_excel('report-PA.xlsx')
+    dfPA = eval(dfPA[method].iloc[0])
     Tokenized = df['Tokenized']
     
     feature = []
 
-    for w in Tokenized:
+    for w in Tokenized.values[0]:
         for f in dfPA:
-            if editdistance.eval(f[0], w) <= 1:
+            if editdistance.eval(f[0], w) <= 0:
+                if w in feature:
+                    continue
                 feature.append(w)
     
 
-    Original_Tokenized = df['Original-Tokenized']
+    Original_Tokenized = df['Original-Tokenized'].values[0]
     ed = []
     for i in feature:
-         ed.append([editdistance(i, j) for j in Original_Tokenized])
+        ed.append([editdistance.distance(i, j) for j in Original_Tokenized])
     
 
     pos = []
@@ -454,21 +458,21 @@ def runExample(review: str, method: str):
 
 
     word_start = [len(" ".join(Original_Tokenized[:p])) + 1 for p in pos]
-    word_end = [word_start + len(Original_Tokenized[p]) for p in pos]
+    word_end = [i + len(Original_Tokenized[p]) for p, i in zip(pos, word_start)]
     
 
 
     from spacy import displacy
-    review = review + '  ' + Polarity(Tokenized).capitalize() + ' '
+    review = review + '  ' + Polarity(Tokenized.values[0]).capitalize() + ' '
     ex = [{"text": review, "title": None}]
     ex[0]['ents'] = [{"start": s, "end": e, "label": "Feature"} for s, e in zip(word_start, word_end)]
     ex[0]['ents'].append({"start": len(review)-9, "end": len(review), "label": "Polarity"})
     options = {"ents": ["Feature", 'Polarity'],
-            "colors": {"Feature": "yellow"}}
+            "colors": {"Feature": "#E6E6FA"}}
     if 'Positive' in review[-10:]:
-        options['colors']['Polarity'] = 'green'
+        options['colors']['Polarity'] = '#90EE90'
     elif 'Negative' in review[-10:]:
-        options['colors']['Polarity'] = 'red'
+        options['colors']['Polarity'] = '#FA8072'
     elif 'Neutral' in review[-10:]:
         options['colors']['Polarity'] = 'white'
     displacy.render(ex, style="ent", manual=True, options=options)

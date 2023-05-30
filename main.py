@@ -11,7 +11,11 @@ from feature_selection import FeatureSelector
 from _.settings import setInit
 print(ITALIC+fwhite+bgreen_yashmi+'\n Loading Done!'+End)
 procedures = setInit()
-os.makedirs('./' + date_string)
+
+os.makedirs('./' + date_string + '/Report/')
+os.makedirs('./' + date_string + '/Models/BERTB/')
+os.makedirs('./' + date_string + '/Models/BERTL/')
+
 
 
 # Loading Data
